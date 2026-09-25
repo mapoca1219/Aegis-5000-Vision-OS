@@ -1,0 +1,6 @@
+{
+  "name": "OpenCV AI Competition 2026 - Winner Command Center",
+  "description": "Championship strategy, OpenCV 5 interactive vision lab, AWS Graviton COOL benchmark simulator, Agentic Vision closed-loop engine, and proposal generator to win 1st place.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
