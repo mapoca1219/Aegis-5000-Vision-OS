@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Maximize2,
 } from 'lucide-react';
+import logoImg from '../assets/Logo.jpeg';
 
 export const PipelineLabTab: React.FC = () => {
   const [selectedSampleId, setSelectedSampleId] = useState<string>('wafer-die');
@@ -311,30 +312,40 @@ export const PipelineLabTab: React.FC = () => {
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Top Device Header */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-600/30 text-cyan-400 border border-cyan-500/40 flex items-center justify-center font-bold text-lg">
-            🔬
+      <div className="p-4 md:p-5 rounded-2xl metallic-panel-glow flex flex-wrap items-center justify-between gap-4 relative overflow-hidden shadow-2xl">
+        <span className="hud-corner hud-corner-tl" />
+        <span className="hud-corner hud-corner-tr" />
+        <span className="hud-corner hud-corner-bl" />
+        <span className="hud-corner hud-corner-br" />
+
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-full overflow-hidden p-0.5 bg-gradient-to-b from-slate-200 via-slate-400 to-slate-700 shadow-[0_0_20px_rgba(0,240,255,0.4)] ring-1 ring-cyan-400/50 flex items-center justify-center shrink-0">
+            <img src={logoImg} alt="Aegis-5000 Badge" className="w-full h-full object-cover rounded-full" />
           </div>
           <div>
-            <h2 className="font-extrabold text-base text-white uppercase tracking-wide flex items-center gap-2">
-              OpenCV 5 Interactive Algorithm Workbench
-            </h2>
-            <p className="text-xs text-slate-400">
-              Real-time convolution kernels, adaptive hysteresis, and sub-pixel edge tuning
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="font-display font-extrabold text-base md:text-xl text-white uppercase tracking-wider flex items-center gap-2">
+                OpenCV 5 Interactive Algorithm Workbench
+              </h2>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 font-bold">
+                G-API PIPELINE
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 font-mono mt-0.5">
+              Real-time convolution kernels, adaptive hysteresis, and sub-pixel edge tuning on AWS Graviton4
             </p>
           </div>
         </div>
 
         {/* Real-time Hardware FPS Indicator */}
-        <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono">
-            <span className="text-slate-500">THROUGHPUT: </span>
-            <span className="text-emerald-400 font-bold">{pipelineFps} FPS</span>
+        <div className="flex items-center gap-3 font-mono text-xs">
+          <div className="px-3.5 py-2 rounded-xl bg-[#030712] border border-cyan-500/30 shadow-inner">
+            <span className="text-slate-400 uppercase text-[10px]">THROUGHPUT: </span>
+            <span className="text-emerald-400 font-bold text-glow-emerald">{pipelineFps} FPS</span>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono">
-            <span className="text-slate-500">LATENCY: </span>
-            <span className="text-cyan-400 font-bold">{pipelineLatencyMs} ms</span>
+          <div className="px-3.5 py-2 rounded-xl bg-[#030712] border border-cyan-500/30 shadow-inner">
+            <span className="text-slate-400 uppercase text-[10px]">CYCLE LATENCY: </span>
+            <span className="text-cyan-400 font-bold text-glow-cyan">{pipelineLatencyMs} ms</span>
           </div>
         </div>
       </div>
@@ -343,7 +354,7 @@ export const PipelineLabTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left: Interactive Canvas & Pixel Probe (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-xl">
+          <div className="p-4 md:p-5 rounded-2xl metallic-panel space-y-3.5 shadow-xl">
             {/* Specimen and Stage Selector Bar */}
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
@@ -354,10 +365,10 @@ export const PipelineLabTab: React.FC = () => {
                       playScanClickSound();
                       setSelectedSampleId(s.id);
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer font-display uppercase tracking-wider ${
                       selectedSampleId === s.id
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                        ? 'btn-cyber-primary text-slate-950 shadow-md'
+                        : 'btn-cyber-secondary'
                     }`}
                   >
                     {s.title.split(' ')[0]} {s.title.split(' ')[1] || ''}
@@ -365,8 +376,8 @@ export const PipelineLabTab: React.FC = () => {
                 ))}
               </div>
 
-              <div className="text-[11px] font-mono text-cyan-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+              <div className="text-[11px] font-mono text-cyan-400 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping shadow-[0_0_8px_#00f0ff]" />
                 <span>480 x 360 px</span>
               </div>
             </div>
@@ -380,19 +391,24 @@ export const PipelineLabTab: React.FC = () => {
                     playScanClickSound();
                     setActiveStage(st.id);
                   }}
-                  className={`p-2 rounded-xl text-center transition-all cursor-pointer ${
+                  className={`p-2 rounded-xl text-center border transition-all cursor-pointer ${
                     activeStage === st.id
-                      ? 'bg-cyan-600 text-white font-bold shadow-md shadow-cyan-500/25'
-                      : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                      ? 'btn-cyber-primary text-slate-950 font-bold shadow-md'
+                      : 'bg-[#030712] text-slate-300 border-slate-800 hover:border-slate-700'
                   }`}
                 >
-                  <div className="text-[10px] leading-tight">{st.label}</div>
+                  <div className="text-[10px] leading-tight font-display font-bold uppercase">{st.label}</div>
                 </button>
               ))}
             </div>
 
-            {/* Live Interactive Processing Canvas */}
-            <div className="relative rounded-xl overflow-hidden bg-black border border-slate-800 aspect-[4/3] flex items-center justify-center group cursor-crosshair">
+            {/* Live Interactive Processing Canvas with HUD corners */}
+            <div className="relative rounded-2xl overflow-hidden bg-black border border-slate-700/80 aspect-[4/3] flex items-center justify-center group cursor-crosshair shadow-2xl">
+              <span className="hud-corner hud-corner-tl" />
+              <span className="hud-corner hud-corner-tr" />
+              <span className="hud-corner hud-corner-bl" />
+              <span className="hud-corner hud-corner-br" />
+
               <canvas
                 ref={canvasRef}
                 onMouseMove={handleCanvasMouseMove}
@@ -400,21 +416,24 @@ export const PipelineLabTab: React.FC = () => {
                 className="w-full h-full object-contain"
               />
 
+              {/* Animated Laser Sweep Beam */}
+              <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#00f0ff] animate-laser pointer-events-none" />
+
               {/* Crosshair probe overlay */}
               {probePos && (
                 <div
-                  className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 border border-cyan-400/80 rounded-full flex items-center justify-center"
+                  className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 border border-cyan-400/90 rounded-full flex items-center justify-center shadow-[0_0_12px_#00f0ff]"
                   style={{
                     left: `${(probePos.x / 480) * 100}%`,
                     top: `${(probePos.y / 360) * 100}%`,
                   }}
                 >
-                  <div className="w-1 h-1 bg-cyan-400 rounded-full" />
+                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full" />
                 </div>
               )}
 
               {/* Active Stage Floating Tag */}
-              <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-700 text-[11px] font-mono text-cyan-300">
+              <div className="absolute top-3 left-3 bg-[#030712]/90 backdrop-blur-md px-3 py-1 rounded-xl border border-slate-700 text-[11px] font-mono text-cyan-300 shadow-md">
                 ACTIVE STAGE: {activeStage.toUpperCase()}
               </div>
             </div>
@@ -451,11 +470,11 @@ export const PipelineLabTab: React.FC = () => {
 
         {/* Right: Tactile Parameter Controllers (5 Cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-5 shadow-xl">
+          <div className="p-4 md:p-5 rounded-2xl metallic-panel space-y-4 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-cyan-400" />
-                <h3 className="font-bold text-sm text-white uppercase">Filter Tuning Controls</h3>
+                <h3 className="font-display font-bold text-sm text-white uppercase tracking-wider">Filter Tuning Controls</h3>
               </div>
               <button
                 onClick={() => {
@@ -466,7 +485,7 @@ export const PipelineLabTab: React.FC = () => {
                   setMorphOp('close');
                   playPassSound();
                 }}
-                className="text-[11px] font-mono text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-mono text-cyan-400 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>Reset Defaults</span>
@@ -474,9 +493,9 @@ export const PipelineLabTab: React.FC = () => {
             </div>
 
             {/* Controller 1: Gaussian Blur Kernel */}
-            <div className="space-y-2 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+            <div className="space-y-2 p-3.5 rounded-xl bg-[#030712] border border-slate-800 shadow-inner">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-200">1. Gaussian Blur Kernel</span>
+                <span className="font-bold text-slate-200 font-tech">1. Gaussian Blur Kernel</span>
                 <span className="font-mono text-cyan-400 font-bold">{blurKernel} x {blurKernel} px</span>
               </div>
               <div className="grid grid-cols-4 gap-2 text-xs font-mono pt-1">
@@ -489,8 +508,8 @@ export const PipelineLabTab: React.FC = () => {
                     }}
                     className={`py-1.5 rounded-lg border text-center transition-all cursor-pointer ${
                       blurKernel === k
-                        ? 'bg-blue-600 text-white font-bold border-blue-500'
-                        : 'bg-slate-900 text-slate-400 hover:text-white border-slate-800'
+                        ? 'btn-cyber-primary text-slate-950 font-bold shadow-md'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border-slate-800'
                     }`}
                   >
                     {k}x{k}
@@ -500,10 +519,10 @@ export const PipelineLabTab: React.FC = () => {
             </div>
 
             {/* Controller 2: CLAHE Contrast Parameters */}
-            <div className="space-y-2 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+            <div className="space-y-2 p-3.5 rounded-xl bg-[#030712] border border-slate-800 shadow-inner">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-200">2. Adaptive CLAHE Clip Limit</span>
-                <span className="font-mono text-emerald-400 font-bold">{claheClip.toFixed(1)}x</span>
+                <span className="font-bold text-slate-200 font-tech">2. Adaptive CLAHE Clip Limit</span>
+                <span className="font-mono text-emerald-400 font-bold text-glow-emerald">{claheClip.toFixed(1)}x</span>
               </div>
               <input
                 type="range"
@@ -512,7 +531,7 @@ export const PipelineLabTab: React.FC = () => {
                 step="0.2"
                 value={claheClip}
                 onChange={(e) => setClaheClip(Number(e.target.value))}
-                className="w-full accent-emerald-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-emerald-400 h-2 bg-slate-950 rounded-lg cursor-pointer"
               />
               <div className="flex justify-between text-[10px] font-mono text-slate-500">
                 <span>1.0x (Mild)</span>
@@ -522,9 +541,9 @@ export const PipelineLabTab: React.FC = () => {
             </div>
 
             {/* Controller 3: Sobel Direction */}
-            <div className="space-y-2 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+            <div className="space-y-2 p-3.5 rounded-xl bg-[#030712] border border-slate-800 shadow-inner">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-200">3. Sobel Gradient Axis</span>
+                <span className="font-bold text-slate-200 font-tech">3. Sobel Gradient Axis</span>
                 <span className="font-mono text-purple-400 font-bold uppercase">{sobelDirection}</span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs font-mono pt-1">
@@ -537,8 +556,8 @@ export const PipelineLabTab: React.FC = () => {
                     }}
                     className={`py-1.5 rounded-lg border text-center transition-all cursor-pointer ${
                       sobelDirection === dir
-                        ? 'bg-purple-600 text-white font-bold border-purple-500'
-                        : 'bg-slate-900 text-slate-400 hover:text-white border-slate-800'
+                        ? 'bg-purple-600 text-white font-bold border-purple-500 shadow-md shadow-purple-500/25'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border-slate-800'
                     }`}
                   >
                     {dir === 'both' ? 'X + Y' : dir === 'horizontal' ? 'X-Axis' : 'Y-Axis'}
@@ -548,18 +567,18 @@ export const PipelineLabTab: React.FC = () => {
             </div>
 
             {/* Controller 4: Canny Thresholds Dual Sliders */}
-            <div className="space-y-3 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+            <div className="space-y-3 p-3.5 rounded-xl bg-[#030712] border border-slate-800 shadow-inner">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-200">4. Canny Hysteresis Thresholds</span>
-                <span className="font-mono text-rose-400 font-bold">
+                <span className="font-bold text-slate-200 font-tech">4. Canny Hysteresis Thresholds</span>
+                <span className="font-mono text-rose-400 font-bold text-glow-rose">
                   {cannyLow} / {cannyHigh}
                 </span>
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-400">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[11px] text-slate-400 font-mono">
                   <span>Minimum Threshold (Low)</span>
-                  <span className="font-mono text-slate-200">{cannyLow}</span>
+                  <span className="font-mono text-rose-400 font-bold">{cannyLow}</span>
                 </div>
                 <input
                   type="range"
@@ -568,14 +587,14 @@ export const PipelineLabTab: React.FC = () => {
                   step="5"
                   value={cannyLow}
                   onChange={(e) => setCannyLow(Number(e.target.value))}
-                  className="w-full accent-rose-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                  className="w-full accent-rose-500 h-1.5 bg-slate-950 rounded-lg cursor-pointer"
                 />
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-400">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[11px] text-slate-400 font-mono">
                   <span>Maximum Threshold (High)</span>
-                  <span className="font-mono text-slate-200">{cannyHigh}</span>
+                  <span className="font-mono text-rose-400 font-bold">{cannyHigh}</span>
                 </div>
                 <input
                   type="range"
@@ -584,15 +603,15 @@ export const PipelineLabTab: React.FC = () => {
                   step="5"
                   value={cannyHigh}
                   onChange={(e) => setCannyHigh(Number(e.target.value))}
-                  className="w-full accent-rose-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                  className="w-full accent-rose-500 h-1.5 bg-slate-950 rounded-lg cursor-pointer"
                 />
               </div>
             </div>
 
             {/* Controller 5: Morphological Operations */}
-            <div className="space-y-2 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+            <div className="space-y-2 p-3.5 rounded-xl bg-[#030712] border border-slate-800 shadow-inner">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-200">5. Morphological Operator</span>
+                <span className="font-bold text-slate-200 font-tech">5. Morphological Operator</span>
                 <span className="font-mono text-amber-400 font-bold uppercase">{morphOp}</span>
               </div>
               <div className="grid grid-cols-4 gap-1.5 text-xs font-mono pt-1">
@@ -605,8 +624,8 @@ export const PipelineLabTab: React.FC = () => {
                     }}
                     className={`py-1.5 rounded-lg border text-center transition-all cursor-pointer ${
                       morphOp === op
-                        ? 'bg-amber-600 text-white font-bold border-amber-500'
-                        : 'bg-slate-900 text-slate-400 hover:text-white border-slate-800'
+                        ? 'bg-amber-500 text-slate-950 font-bold border-amber-400 shadow-md shadow-amber-500/25'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border-slate-800'
                     }`}
                   >
                     {op === 'none' ? 'None' : op === 'dilate' ? 'Dilate' : op === 'erode' ? 'Erode' : 'Close'}

@@ -87,86 +87,99 @@ export const CoolBenchmarkTab: React.FC = () => {
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Header */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-bold text-lg">
+      <div className="metallic-panel p-5 relative overflow-hidden flex flex-wrap items-center justify-between gap-4">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-80" />
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-400/50 flex items-center justify-center font-bold text-xl shadow-[0_0_15px_rgba(16,185,129,0.3)]">
             ⚡
           </div>
           <div>
-            <h2 className="font-extrabold text-base text-white uppercase tracking-wide flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase bg-emerald-950/70 px-2 py-0.5 rounded border border-emerald-500/30">
+                BENCHMARK ENGINE 4.2
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">c8g.2xlarge • ARM64 NEON</span>
+            </div>
+            <h2 className="font-display font-extrabold text-lg text-white uppercase tracking-wider flex items-center gap-2 mt-0.5">
               AWS Graviton4 + COOL Compute Benchmark Studio
             </h2>
             <p className="text-xs text-slate-400">
-              Real-time performance evaluation: Arm64 NEON vectorized runtime vs legacy x86 architectures
+              Deterministic real-time throughput profiling: Arm64 NEON vectorized runtime vs legacy x86 architectures
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={handleExportBenchmark}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            className="btn-cyber-secondary flex items-center gap-1.5 cursor-pointer text-xs"
           >
             <Download className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{downloadNotice ? 'Exported!' : 'Export JSON'}</span>
+            <span>{downloadNotice ? 'BENCHMARK EXPORTED!' : 'EXPORT JSON AUDIT'}</span>
           </button>
 
           <button
             onClick={handleRunStressTest}
             disabled={isRunningSim}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs uppercase flex items-center gap-2 shadow-lg shadow-emerald-500/25 transition-all cursor-pointer disabled:opacity-50"
+            className="btn-cyber-primary flex items-center gap-2 cursor-pointer text-xs bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.35)] disabled:opacity-50"
           >
             <Play className={`w-4 h-4 ${isRunningSim ? 'animate-spin' : ''}`} />
-            <span>{isRunningSim ? 'STREAMING FRAMES...' : 'LIVE STRESS TEST'}</span>
+            <span>{isRunningSim ? 'STREAMING INFERENCE...' : 'RUN LIVE STRESS TEST'}</span>
           </button>
         </div>
       </div>
 
-      {/* Architecture Selection Pills */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* Architecture Selection Blades */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {[
           {
             id: 'graviton' as const,
             title: 'AWS Graviton4 + COOL',
-            subtitle: 'Arm64 Vectorized NEON',
+            subtitle: 'Arm64 Vectorized NEON G-API',
             fps: '248 FPS',
-            badge: 'ACTIVE RUNTIME',
-            color: 'border-emerald-500 bg-emerald-950/20 text-emerald-400',
+            badge: 'ACTIVE HARDWARE',
+            activeBorder: 'border-emerald-400/80 shadow-[0_0_20px_rgba(16,185,129,0.25)]',
+            fpsColor: 'text-emerald-400 text-glow-emerald',
           },
           {
             id: 'x86' as const,
-            title: 'Intel / AMD Legacy',
+            title: 'Intel Xeon / AMD EPYC',
             subtitle: 'x86-64 SSE4.2 Baseline',
             fps: '87 FPS',
-            badge: 'BASELINE',
-            color: 'border-slate-800 bg-slate-900 text-slate-400',
+            badge: 'LEGACY BASELINE',
+            activeBorder: 'border-amber-400/80 shadow-[0_0_20px_rgba(245,158,11,0.2)]',
+            fpsColor: 'text-slate-300',
           },
           {
             id: 'edge' as const,
             title: 'Embedded Edge NPU',
-            subtitle: 'On-Premises Edge',
+            subtitle: 'On-Premises Edge Jetson Orin',
             fps: '112 FPS',
             badge: 'EDGE HARDWARE',
-            color: 'border-slate-800 bg-slate-900 text-slate-400',
+            activeBorder: 'border-cyan-400/80 shadow-[0_0_20px_rgba(0,240,255,0.2)]',
+            fpsColor: 'text-cyan-400 text-glow-cyan',
           },
         ].map((arch) => (
           <button
             key={arch.id}
             onClick={() => setSelectedArch(arch.id)}
-            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+            className={`metallic-panel p-4 text-left transition-all cursor-pointer relative overflow-hidden ${
               selectedArch === arch.id
-                ? 'border-emerald-500 bg-slate-900 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/40'
-                : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                ? `${arch.activeBorder} ring-1 ring-white/20`
+                : 'hover:border-slate-600 opacity-80 hover:opacity-100'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white uppercase">{arch.title}</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+              <span className="text-xs font-display font-bold text-white uppercase tracking-wider">{arch.title}</span>
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-950/80 text-slate-300 border border-slate-700/60">
                 {arch.badge}
               </span>
             </div>
-            <div className="text-[11px] text-slate-400 mt-1">{arch.subtitle}</div>
-            <div className="text-2xl font-black font-mono text-emerald-400 mt-3">{arch.fps}</div>
+            <div className="text-[11px] text-slate-400 font-mono mt-1">{arch.subtitle}</div>
+            <div className={`text-3xl font-black font-mono mt-3 ${arch.fpsColor}`}>{arch.fps}</div>
+            {selectedArch === arch.id && (
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-emerald-400" />
+            )}
           </button>
         ))}
       </div>
@@ -174,53 +187,65 @@ export const CoolBenchmarkTab: React.FC = () => {
       {/* Real-time Hardware Gauges Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Speedup Meter */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-emerald-500/30">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="font-bold uppercase">Acceleration Factor</span>
-            <span className="text-emerald-400 font-mono font-bold">2.85x</span>
+            <span className="font-display font-bold uppercase tracking-wider text-slate-300">Vector Speedup</span>
+            <span className="text-emerald-400 font-mono font-bold text-xs bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
+              2.85x
+            </span>
           </div>
-          <div className="py-2">
-            <div className="text-4xl font-black font-mono text-emerald-400">{speedup}x</div>
-            <div className="text-xs text-slate-300 mt-1">Faster throughput vs x86</div>
+          <div className="py-2.5">
+            <div className="text-4xl font-black font-mono text-emerald-400 text-glow-emerald">{speedup}x</div>
+            <div className="text-[11px] text-slate-400 font-mono mt-1 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              Throughput gain vs x86-64
+            </div>
           </div>
-          <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-emerald-500 h-full w-[95%]" />
+          <div className="w-full bg-slate-950/80 rounded-full h-2 overflow-hidden border border-emerald-500/20">
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-400 h-full w-[95%] shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
           </div>
         </div>
 
         {/* Latency Meter */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-cyan-500/30">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="font-bold uppercase">P99 Latency</span>
-            <span className="text-cyan-400 font-mono font-bold">4.03 ms</span>
+            <span className="font-display font-bold uppercase tracking-wider text-slate-300">P99 Loop Latency</span>
+            <span className="text-cyan-400 font-mono font-bold text-xs bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">
+              {selectedArch === 'graviton' ? '4.03 ms' : selectedArch === 'x86' ? '11.49 ms' : '8.92 ms'}
+            </span>
           </div>
-          <div className="py-2">
-            <div className="text-4xl font-black font-mono text-cyan-400">
+          <div className="py-2.5">
+            <div className="text-4xl font-black font-mono text-cyan-400 text-glow-cyan">
               {selectedArch === 'graviton' ? '4.03 ms' : selectedArch === 'x86' ? '11.49 ms' : '8.92 ms'}
             </div>
-            <div className="text-xs text-slate-300 mt-1">Per-frame pipeline cycle time</div>
+            <div className="text-[11px] text-slate-400 font-mono mt-1 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+              Per-frame inference cycle
+            </div>
           </div>
-          <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-cyan-500 h-full w-[90%]" />
+          <div className="w-full bg-slate-950/80 rounded-full h-2 overflow-hidden border border-cyan-500/20">
+            <div className="bg-gradient-to-r from-cyan-600 to-blue-400 h-full w-[90%] shadow-[0_0_10px_rgba(0,240,255,0.5)]" />
           </div>
         </div>
 
         {/* Temperature Gauge */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-amber-500/30">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="font-bold uppercase">Core Temperature</span>
+            <span className="font-display font-bold uppercase tracking-wider text-slate-300">Die Thermals</span>
             <Flame className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="py-2">
+          <div className="py-2.5">
             <div className="text-4xl font-black font-mono text-amber-400">{currentTemp} °C</div>
-            <div className="text-xs text-slate-300 mt-1">
-              {currentTemp > 48 ? 'Heavy Load (100% Stability)' : 'Optimal Thermal Envelope'}
+            <div className="text-[11px] text-slate-400 font-mono mt-1">
+              {currentTemp > 48 ? 'Heavy Load (Nominal)' : 'Optimal Thermal Envelope'}
             </div>
           </div>
-          <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-slate-950/80 rounded-full h-2 overflow-hidden border border-amber-500/20">
             <div
               className={`h-full transition-all duration-300 ${
-                currentTemp > 48 ? 'bg-amber-500' : 'bg-teal-500'
+                currentTemp > 48
+                  ? 'bg-gradient-to-r from-amber-500 to-rose-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
+                  : 'bg-gradient-to-r from-teal-500 to-emerald-400 shadow-[0_0_10px_rgba(20,184,166,0.5)]'
               }`}
               style={{ width: `${(currentTemp / 70) * 100}%` }}
             />
@@ -228,71 +253,86 @@ export const CoolBenchmarkTab: React.FC = () => {
         </div>
 
         {/* Total Processed Counter */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-purple-500/30">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="font-bold uppercase">Frames Analyzed</span>
+            <span className="font-display font-bold uppercase tracking-wider text-slate-300">Frames Ingested</span>
             <Activity className="w-4 h-4 text-purple-400" />
           </div>
-          <div className="py-2">
+          <div className="py-2.5">
             <div className="text-4xl font-black font-mono text-purple-400">
               {simFramesProcessed.toLocaleString()}
             </div>
-            <div className="text-xs text-slate-300 mt-1">Current inspection session</div>
+            <div className="text-[11px] text-slate-400 font-mono mt-1">
+              Continuous live stress loop
+            </div>
           </div>
-          <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-purple-500 h-full w-full" />
+          <div className="w-full bg-slate-950/80 rounded-full h-2 overflow-hidden border border-purple-500/20">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-400 h-full w-full shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
           </div>
         </div>
       </div>
 
       {/* Production Volume & Cloud Economy Calculator */}
-      <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+      <div className="metallic-panel-glow p-6 space-y-5 relative">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-cyan-500/20 pb-4">
           <div>
-            <h3 className="text-xs font-bold text-white uppercase">
-              Industrial Compute Economy & Power Efficiency Calculator
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">
+                PLANT FINANCES & ESG
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">AWS GRAVITON4 COOL SAVINGS CALCULATOR</span>
+            </div>
+            <h3 className="text-base font-display font-bold text-white uppercase tracking-wider mt-1">
+              Industrial Compute Economy & Green Energy Model
             </h3>
-            <p className="text-[11px] text-slate-400">
-              Adjust the production slider to project financial and green energy savings at plant scale
+            <p className="text-xs text-slate-400">
+              Simulate enterprise plant scale to calculate OPEX cost reductions and electrical kilowatt savings
             </p>
           </div>
-          <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-xl border border-emerald-500/30">
+          <span className="text-sm font-mono font-bold text-emerald-300 bg-emerald-950/80 px-4 py-1.5 rounded-lg border border-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.25)]">
             {(framesPerDay / 1000000).toFixed(1)} Million parts / day
           </span>
         </div>
 
-        <input
-          type="range"
-          min="200000"
-          max="10000000"
-          step="200000"
-          value={framesPerDay}
-          onChange={(e) => setFramesPerDay(Number(e.target.value))}
-          className="w-full accent-emerald-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
-        />
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
+            <span>200K parts/day (Pilot Line)</span>
+            <span className="text-emerald-400 font-bold">{(framesPerDay / 1000000).toFixed(1)}M PARTS</span>
+            <span>10M parts/day (Giga-factory)</span>
+          </div>
+          <input
+            type="range"
+            min="200000"
+            max="10000000"
+            step="200000"
+            value={framesPerDay}
+            onChange={(e) => setFramesPerDay(Number(e.target.value))}
+            className="w-full accent-cyan-400 h-2 bg-slate-950 rounded-lg cursor-pointer border border-cyan-500/20"
+          />
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
-          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-            <span className="text-slate-500 font-bold uppercase text-[10px]">Monthly Cost (x86)</span>
-            <div className="text-rose-400 font-mono font-bold text-xl">${costX86PerMonth.toFixed(2)} USD</div>
-            <div className="text-[11px] text-slate-400">c6i.2xlarge instances</div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2 text-xs">
+          <div className="metallic-panel p-4 space-y-1.5 border-rose-500/30">
+            <span className="text-slate-400 font-display font-bold uppercase text-[11px] tracking-wider">Monthly OPEX (Legacy x86)</span>
+            <div className="text-rose-400 font-mono font-bold text-2xl text-glow-rose">${costX86PerMonth.toFixed(2)} USD</div>
+            <div className="text-[11px] text-slate-400 font-mono">AWS EC2 c6i.2xlarge cluster</div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-            <span className="text-slate-500 font-bold uppercase text-[10px]">Monthly Cost (Graviton4)</span>
-            <div className="text-emerald-400 font-mono font-bold text-xl">
+          <div className="metallic-panel p-4 space-y-1.5 border-cyan-500/30">
+            <span className="text-slate-400 font-display font-bold uppercase text-[11px] tracking-wider">Monthly OPEX (Graviton4 COOL)</span>
+            <div className="text-cyan-400 font-mono font-bold text-2xl text-glow-cyan">
               ${costGravitonPerMonth.toFixed(2)} USD
             </div>
-            <div className="text-[11px] text-slate-400">c8g.2xlarge Arm64 instances</div>
+            <div className="text-[11px] text-slate-400 font-mono">AWS EC2 c8g.2xlarge Arm64</div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 space-y-1">
-            <span className="text-emerald-400 font-bold uppercase text-[10px]">Net Plant Savings</span>
-            <div className="text-emerald-300 font-mono font-bold text-xl">
-              +${monthlySavings.toFixed(2)} USD / month
+          <div className="metallic-panel p-4 space-y-1.5 border-emerald-400/50 bg-emerald-950/30 ring-1 ring-emerald-400/40">
+            <span className="text-emerald-300 font-display font-bold uppercase text-[11px] tracking-wider">Net Annualized Plant Advantage</span>
+            <div className="text-emerald-300 font-mono font-black text-2xl text-glow-emerald">
+              +${monthlySavings.toFixed(2)} / mo
             </div>
-            <div className="text-[11px] text-emerald-400">
-              {savingsPct}% less compute expenditure • {kwhSaved.toFixed(0)} kWh saved
+            <div className="text-[11px] text-emerald-300/90 font-mono">
+              {savingsPct}% compute reduction • {kwhSaved.toFixed(0)} kWh conserved
             </div>
           </div>
         </div>

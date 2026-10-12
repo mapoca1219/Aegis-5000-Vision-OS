@@ -1,1 +1,201 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Rajdhani", sans-serif;
+  --font-tech: "Chakra Petch", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Inter", sans-serif;
+}
+
+/* Blueprint Grid Background inspired by Logo.jpeg schematic */
+.bg-blueprint-grid {
+  background-color: #030712;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to right, rgba(14, 165, 233, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(14, 165, 233, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.12) 0%, transparent 65%),
+    radial-gradient(circle at 10% 80%, rgba(2, 132, 199, 0.06) 0%, transparent 45%);
+  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px, 100% 100%, 100% 100%;
+  background-position: 0 0, 0 0, 0 0, 0 0, center top, left bottom;
+}
+
+/* Futuristic Metallic Chrome & Brushed Titanium Panel */
+.metallic-panel {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(8, 14, 28, 0.96) 50%, rgba(15, 23, 42, 0.9) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 
+    0 10px 30px -5px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 20px rgba(0, 240, 255, 0.03);
+  backdrop-filter: blur(16px);
+  position: relative;
+}
+
+/* Metallic Panel with Active Cyan Glow */
+.metallic-panel-glow {
+  background: linear-gradient(135deg, rgba(14, 27, 49, 0.92) 0%, rgba(8, 16, 32, 0.98) 50%, rgba(12, 23, 44, 0.92) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  box-shadow: 
+    0 0 25px rgba(0, 240, 255, 0.18),
+    0 15px 35px -5px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+    inset 0 0 25px rgba(0, 240, 255, 0.08);
+  backdrop-filter: blur(20px);
+  position: relative;
+}
+
+/* Brushed Titanium Badge */
+.metallic-badge {
+  background: linear-gradient(180deg, #94a3b8 0%, #475569 50%, #334155 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Laser Neon Text Glows */
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.text-glow-emerald {
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.7), 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.text-glow-rose {
+  text-shadow: 0 0 10px rgba(244, 63, 94, 0.7), 0 0 20px rgba(244, 63, 94, 0.3);
+}
+
+.text-glow-amber {
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.7), 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+/* Machined Cyber Action Buttons */
+.btn-cyber-primary {
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 50%, #0369a1 100%);
+  color: #030712;
+  font-family: var(--font-display, "Rajdhani", sans-serif);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border-top: 1px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  border-left: 1px solid rgba(0, 240, 255, 0.5);
+  border-right: 1px solid rgba(0, 240, 255, 0.5);
+  box-shadow: 
+    0 0 20px rgba(0, 240, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-cyber-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #38bdf8 0%, #00f0ff 60%, #0284c7 100%);
+  box-shadow: 
+    0 0 30px rgba(0, 240, 255, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.btn-cyber-primary:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.btn-cyber-secondary {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-cyber-secondary:hover:not(:disabled) {
+  border-color: rgba(0, 240, 255, 0.5);
+  color: #00f0ff;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Tactical HUD Corner Brackets */
+.hud-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-corner-tl {
+  top: 4px;
+  left: 4px;
+  border-top: 2px solid #00f0ff;
+  border-left: 2px solid #00f0ff;
+}
+
+.hud-corner-tr {
+  top: 4px;
+  right: 4px;
+  border-top: 2px solid #00f0ff;
+  border-right: 2px solid #00f0ff;
+}
+
+.hud-corner-bl {
+  bottom: 4px;
+  left: 4px;
+  border-bottom: 2px solid #00f0ff;
+  border-left: 2px solid #00f0ff;
+}
+
+.hud-corner-br {
+  bottom: 4px;
+  right: 4px;
+  border-bottom: 2px solid #00f0ff;
+  border-right: 2px solid #00f0ff;
+}
+
+/* Animated Optical Laser Sweep */
+@keyframes laser-sweep {
+  0% {
+    top: 0%;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  100% {
+    top: 100%;
+    opacity: 0.2;
+  }
+}
+
+.animate-laser {
+  animation: laser-sweep 2.2s ease-in-out infinite alternate;
+}
+
+/* Holographic Rotating Pulse */
+@keyframes holo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-holo-spin {
+  animation: holo-spin 20s linear infinite;
+}
+
+/* Pulse Glow Keyframe */
+@keyframes pulse-cyan {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.65);
+  }
+}
+
+.animate-pulse-cyan {
+  animation: pulse-cyan 3s infinite ease-in-out;
+}

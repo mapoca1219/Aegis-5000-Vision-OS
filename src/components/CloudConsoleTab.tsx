@@ -410,13 +410,20 @@ export const CloudConsoleTab: React.FC = () => {
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Header */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/30 text-blue-400 border border-blue-500/40 flex items-center justify-center font-bold text-lg">
+      <div className="metallic-panel p-5 relative overflow-hidden flex flex-wrap items-center justify-between gap-4">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-80" />
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-lg bg-blue-950/80 text-cyan-300 border border-cyan-400/50 flex items-center justify-center font-bold text-xl shadow-[0_0_15px_rgba(6,182,212,0.3)]">
             ☁️
           </div>
           <div>
-            <h2 className="font-extrabold text-base text-white uppercase tracking-wide flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase bg-cyan-950/70 px-2 py-0.5 rounded border border-cyan-500/30">
+                TELEMETRY MESH ONLINE
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">AWS us-east-1 • TLS 1.3</span>
+            </div>
+            <h2 className="font-display font-extrabold text-lg text-white uppercase tracking-wider flex items-center gap-2 mt-0.5">
               Cloud Telemetry & Plant Connectivity Console
             </h2>
             <p className="text-xs text-slate-400">
@@ -428,31 +435,31 @@ export const CloudConsoleTab: React.FC = () => {
         <button
           onClick={handleRunPingTest}
           disabled={isPinging}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs uppercase flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all cursor-pointer disabled:opacity-50"
+          className="btn-cyber-primary flex items-center gap-2 cursor-pointer text-xs disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isPinging ? 'animate-spin' : ''}`} />
-          <span>{isPinging ? 'Measuring Latency...' : 'Run Ping Test'}</span>
+          <span>{isPinging ? 'MEASURING JITTER...' : 'RUN PING AUDIT'}</span>
         </button>
       </div>
 
       {/* Latency Network Jitter Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         {[
-          { label: 'On-Prem Factory Switch', latency: pingResults.factoryGateway, icon: Wifi, target: '< 1 ms' },
+          { label: 'Factory Gateway', latency: pingResults.factoryGateway, icon: Wifi, target: '< 1 ms' },
           { label: 'AWS IoT Core Ingest', latency: pingResults.iotCore, icon: Radio, target: '< 3 ms' },
           { label: 'Graviton4 COOL Cluster', latency: pingResults.gravitonCluster, icon: Server, target: '< 5 ms' },
           { label: 'Amazon S3 Vault', latency: pingResults.s3Vault, icon: Database, target: '< 10 ms' },
         ].map((node, i) => {
           const Icon = node.icon;
           return (
-            <div key={i} className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+            <div key={i} className="metallic-panel p-4 hud-corner space-y-2 border-cyan-500/20">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono uppercase text-slate-400">{node.label}</span>
                 <Icon className="w-3.5 h-3.5 text-cyan-400" />
               </div>
-              <div className="text-2xl font-black font-mono text-cyan-400">{node.latency} ms</div>
-              <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <div className="text-2xl font-black font-mono text-cyan-400 text-glow-cyan">{node.latency} ms</div>
+              <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Target {node.target}</span>
               </div>
             </div>
@@ -464,22 +471,22 @@ export const CloudConsoleTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left: Video Streaming Configuration (5 Cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="metallic-panel p-5 hud-corner space-y-4 border-cyan-500/30">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-cyan-400" />
-                <h3 className="font-bold text-xs uppercase text-white">Video Transmission Link Parameters</h3>
+                <h3 className="font-display font-bold text-xs uppercase tracking-wider text-white">Video Transmission Link Parameters</h3>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">
+              <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-400/40">
                 TLS 1.3 ACTIVE
               </span>
             </div>
 
             {/* Bitrate Slider */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-300">
-                <span>Bandwidth (RTSP Bitrate)</span>
-                <span className="font-mono text-cyan-400 font-bold">{streamBitrate} Mbps</span>
+                <span className="font-display uppercase tracking-wider text-[11px] text-slate-400">Bandwidth (RTSP Bitrate)</span>
+                <span className="font-mono text-cyan-400 font-bold text-glow-cyan">{streamBitrate} Mbps</span>
               </div>
               <input
                 type="range"
@@ -488,15 +495,15 @@ export const CloudConsoleTab: React.FC = () => {
                 step="5"
                 value={streamBitrate}
                 onChange={(e) => setStreamBitrate(Number(e.target.value))}
-                className="w-full accent-cyan-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-cyan-400 h-1.5 bg-slate-950 rounded-lg cursor-pointer border border-cyan-500/20"
               />
             </div>
 
             {/* FPS Limit Buttons */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-300">
-                <span>Framerate Limit</span>
-                <span className="font-mono text-emerald-400 font-bold">{fpsLimit} FPS</span>
+                <span className="font-display uppercase tracking-wider text-[11px] text-slate-400">Framerate Limit</span>
+                <span className="font-mono text-emerald-400 font-bold text-glow-emerald">{fpsLimit} FPS</span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs font-mono pt-1">
                 {[30, 60, 120].map((f) => (
@@ -508,8 +515,8 @@ export const CloudConsoleTab: React.FC = () => {
                     }}
                     className={`py-1.5 rounded-lg border text-center transition-all cursor-pointer ${
                       fpsLimit === f
-                        ? 'bg-blue-600 text-white font-bold border-blue-500'
-                        : 'bg-slate-950 text-slate-400 hover:text-white border-slate-800'
+                        ? 'bg-cyan-500/20 text-cyan-300 font-bold border-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.3)]'
+                        : 'bg-slate-950/70 text-slate-400 hover:text-white border-slate-800'
                     }`}
                   >
                     {f} FPS
@@ -519,9 +526,9 @@ export const CloudConsoleTab: React.FC = () => {
             </div>
 
             {/* Compression Slider */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-300">
-                <span>JPEG / WebP Compression Quality</span>
+                <span className="font-display uppercase tracking-wider text-[11px] text-slate-400">Compression Quality</span>
                 <span className="font-mono text-purple-400 font-bold">{compressionQuality}%</span>
               </div>
               <input
@@ -531,14 +538,14 @@ export const CloudConsoleTab: React.FC = () => {
                 step="5"
                 value={compressionQuality}
                 onChange={(e) => setCompressionQuality(Number(e.target.value))}
-                className="w-full accent-purple-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-purple-400 h-1.5 bg-slate-950 rounded-lg cursor-pointer border border-purple-500/20"
               />
             </div>
 
             {/* Microservice Health Toggles */}
-            <div className="pt-2 border-t border-slate-800 space-y-2">
-              <span className="text-[11px] font-bold text-slate-400 uppercase block">
-                Active Cloud Services
+            <div className="pt-2.5 border-t border-cyan-500/20 space-y-2">
+              <span className="text-[11px] font-display font-bold text-slate-400 uppercase tracking-wider block">
+                Active Edge-to-Cloud Services
               </span>
               <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                 {[
@@ -553,16 +560,16 @@ export const CloudConsoleTab: React.FC = () => {
                       playScanClickSound();
                       setServices((prev) => ({ ...prev, [s.key]: !prev[s.key as keyof typeof prev] }));
                     }}
-                    className={`p-2 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                    className={`p-2 rounded-lg border text-left flex items-center justify-between transition-all cursor-pointer ${
                       services[s.key as keyof typeof services]
-                        ? 'bg-slate-950 border-emerald-500/40 text-emerald-300'
-                        : 'bg-slate-950/40 border-slate-800 text-slate-600'
+                        ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.15)]'
+                        : 'bg-slate-950/50 border-slate-800 text-slate-500'
                     }`}
                   >
                     <span>{s.label}</span>
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        services[s.key as keyof typeof services] ? 'bg-emerald-400' : 'bg-slate-600'
+                        services[s.key as keyof typeof services] ? 'bg-emerald-400 animate-pulse' : 'bg-slate-700'
                       }`}
                     />
                   </button>
@@ -574,20 +581,20 @@ export const CloudConsoleTab: React.FC = () => {
 
         {/* Right: S3 Defect Vault Gallery WITH VISUAL THUMBNAILS (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="metallic-panel p-5 hud-corner space-y-4 border-cyan-500/30">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3">
               <div className="flex items-center gap-2">
                 <Database className="w-4 h-4 text-emerald-400" />
                 <div>
-                  <h3 className="font-bold text-xs uppercase text-white">
+                  <h3 className="font-display font-bold text-xs uppercase tracking-wider text-white">
                     Amazon S3 Defect Evidence Vault (Forensic Captures)
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Click any specimen thumbnail or button to open high-resolution forensic inspection
+                    High-resolution automated defect captures with calibrated pixel-to-millimeter metrics
                   </p>
                 </div>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-500/30 whitespace-nowrap">
+              <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-rose-950/80 text-rose-300 border border-rose-500/40 whitespace-nowrap shadow-[0_0_10px_rgba(244,63,94,0.2)]">
                 4 EJECTED PIECES
               </span>
             </div>
@@ -598,10 +605,10 @@ export const CloudConsoleTab: React.FC = () => {
                 <div
                   key={item.id}
                   onClick={() => handleOpenItem(item)}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer space-y-2 group ${
+                  className={`metallic-panel p-3.5 transition-all cursor-pointer space-y-2.5 group relative ${
                     selectedVaultItem?.id === item.id
-                      ? 'bg-slate-950 border-cyan-400 shadow-md shadow-cyan-500/20'
-                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-600'
+                      ? 'border-cyan-400 ring-1 ring-cyan-400/50 shadow-[0_0_20px_rgba(0,240,255,0.25)]'
+                      : 'hover:border-cyan-500/50'
                   }`}
                 >
                   {/* Visual Specimen Thumbnail Canvas */}
@@ -611,11 +618,14 @@ export const CloudConsoleTab: React.FC = () => {
                     <span className="font-bold font-mono text-white group-hover:text-cyan-300 transition-colors">
                       {item.serial}
                     </span>
-                    <span className="text-rose-400 font-mono font-bold">{item.dimensionMm} mm</span>
+                    <span className="text-rose-400 font-mono font-bold text-glow-rose">{item.dimensionMm} mm</span>
                   </div>
 
-                  <div className="text-[11px] text-slate-300">{item.specimen}</div>
-                  <div className="text-[10px] text-amber-300 font-mono">{item.defectType}</div>
+                  <div className="text-[11px] text-slate-300 font-mono">{item.specimen}</div>
+                  <div className="text-[10px] text-amber-300 font-mono flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    {item.defectType}
+                  </div>
 
                   {/* Tactile Button to Open Image */}
                   <button
@@ -623,10 +633,10 @@ export const CloudConsoleTab: React.FC = () => {
                       e.stopPropagation();
                       handleOpenItem(item);
                     }}
-                    className="w-full py-1.5 px-2 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="w-full py-1.5 px-2.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 hover:text-white border border-cyan-500/40 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5" />
-                    <span>View Forensic Image</span>
+                    <span>INSPECT HIGH-RES FORENSICS</span>
                   </button>
                 </div>
               ))}
@@ -636,26 +646,26 @@ export const CloudConsoleTab: React.FC = () => {
       </div>
 
       {/* Live Event Log Terminal WITH DIRECT IMAGE LINKS */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-xl">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+      <div className="metallic-panel p-5 hud-corner space-y-3.5 border-cyan-500/30">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-500/20 pb-3">
           <div className="flex items-center gap-2">
             <Terminal className="w-4 h-4 text-emerald-400" />
             <div>
-              <h3 className="font-bold text-xs uppercase text-white">Real-Time Event & Telemetry Terminal</h3>
+              <h3 className="font-display font-bold text-xs uppercase tracking-wider text-white">Real-Time Event & Telemetry Terminal</h3>
               <p className="text-[10px] text-slate-400">
-                Events with confirmed anomalies include the direct <strong>[📷 View Image]</strong> inspection button
+                Deterministic real-time telemetry stream. Click <strong>[📷 View Image]</strong> to inspect captured evidence.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-[10px] font-mono">
+            <div className="flex items-center gap-1 bg-slate-950/80 p-1 rounded-lg border border-slate-800 text-[10px] font-mono">
               {(['ALL', 'INFO', 'WARN', 'CRITICAL'] as const).map((lvl) => (
                 <button
                   key={lvl}
                   onClick={() => setLogFilter(lvl)}
                   className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
-                    logFilter === lvl ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+                    logFilter === lvl ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   {lvl}
@@ -665,7 +675,7 @@ export const CloudConsoleTab: React.FC = () => {
 
             <button
               onClick={() => setIsLogLive(!isLogLive)}
-              className="px-2.5 py-1 rounded-lg bg-slate-800 text-[10px] font-mono text-slate-300 hover:text-white flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-slate-950/80 text-[10px] font-mono text-slate-300 hover:text-white border border-slate-800 flex items-center gap-1 cursor-pointer"
             >
               {isLogLive ? <Pause className="w-3 h-3 text-amber-400" /> : <Play className="w-3 h-3 text-emerald-400" />}
               <span>{isLogLive ? 'PAUSE' : 'RESUME'}</span>
@@ -674,7 +684,7 @@ export const CloudConsoleTab: React.FC = () => {
         </div>
 
         {/* Log Entries */}
-        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-xs max-h-56 overflow-y-auto space-y-2 scrollbar-thin">
+        <div className="bg-slate-950/90 p-3.5 rounded-lg border border-slate-800/80 font-mono text-xs max-h-56 overflow-y-auto space-y-2 scrollbar-thin">
           {filteredLogs.map((log) => (
             <div
               key={log.id}
@@ -715,17 +725,17 @@ export const CloudConsoleTab: React.FC = () => {
       {/* HIGH-RESOLUTION IMAGE INSPECTION MODAL */}
       {selectedVaultItem && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full p-5 space-y-4 shadow-2xl relative">
+          <div className="metallic-panel-glow max-w-3xl w-full p-6 space-y-4 shadow-2xl relative border-cyan-500/40">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3.5">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-cyan-600/30 text-cyan-400 border border-cyan-500/40 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-lg bg-cyan-950/80 text-cyan-300 border border-cyan-400/50 flex items-center justify-center font-bold text-lg shadow-[0_0_15px_rgba(0,240,255,0.3)]">
                   📸
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
+                  <h3 className="font-display font-extrabold text-base text-white flex items-center gap-2">
                     <span>Forensic Evidence: {selectedVaultItem.serial}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-500/30">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-500/40">
                       DEFECT: {selectedVaultItem.dimensionMm} mm
                     </span>
                   </h3>
@@ -737,14 +747,14 @@ export const CloudConsoleTab: React.FC = () => {
 
               <button
                 onClick={() => setSelectedVaultItem(null)}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all cursor-pointer"
+                className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Display Mode Switcher */}
-            <div className="flex items-center justify-between gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800 text-xs font-mono">
+            <div className="flex items-center justify-between gap-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-xs font-mono">
               <span className="text-slate-400 pl-2">VIEWPORT MODE:</span>
               <div className="flex items-center gap-1.5">
                 {[
@@ -759,8 +769,8 @@ export const CloudConsoleTab: React.FC = () => {
                       onClick={() => setModalViewMode(mode.id)}
                       className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
                         modalViewMode === mode.id
-                          ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20'
-                          : 'text-slate-400 hover:text-white'
+                          ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.3)]'
+                          : 'text-slate-400 hover:text-white border border-transparent'
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5" />
@@ -772,39 +782,39 @@ export const CloudConsoleTab: React.FC = () => {
             </div>
 
             {/* Canvas Specimen Display */}
-            <div className="relative rounded-xl overflow-hidden bg-black border border-slate-800 aspect-[14/9] flex items-center justify-center">
+            <div className="relative rounded-lg overflow-hidden bg-black border border-cyan-500/30 aspect-[14/9] flex items-center justify-center">
               <canvas ref={modalCanvasRef} className="w-full h-full object-contain" />
 
               {/* S3 URI watermark tag */}
-              <div className="absolute bottom-2 left-2 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-slate-800 text-[10px] font-mono text-slate-400">
+              <div className="absolute bottom-2 left-2 bg-slate-950/90 backdrop-blur-md px-3 py-1 rounded border border-cyan-500/30 text-[10px] font-mono text-cyan-300">
                 {selectedVaultItem.s3Key}
               </div>
             </div>
 
             {/* Telemetry and Metrics Bar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-mono">
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
                 <div className="text-[10px] text-slate-500 uppercase">Defect Size</div>
-                <div className="text-rose-400 font-bold text-sm mt-0.5">{selectedVaultItem.dimensionMm} mm</div>
+                <div className="text-rose-400 font-bold text-sm mt-0.5 text-glow-rose">{selectedVaultItem.dimensionMm} mm</div>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
                 <div className="text-[10px] text-slate-500 uppercase">OpenCV 5 Certainty</div>
-                <div className="text-emerald-400 font-bold text-sm mt-0.5">
+                <div className="text-emerald-400 font-bold text-sm mt-0.5 text-glow-emerald">
                   {(selectedVaultItem.confidence * 100).toFixed(0)}%
                 </div>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
                 <div className="text-[10px] text-slate-500 uppercase">Plant Actuation</div>
-                <div className="text-rose-400 font-bold text-sm mt-0.5">PLC Ejection</div>
+                <div className="text-rose-400 font-bold text-sm mt-0.5">PLC High-Speed Eject</div>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
                 <div className="text-[10px] text-slate-500 uppercase">Cloud Storage</div>
-                <div className="text-cyan-400 font-bold text-sm mt-0.5">S3 + KMS Encrypted</div>
+                <div className="text-cyan-400 font-bold text-sm mt-0.5">S3 + KMS 256-bit</div>
               </div>
             </div>
 
             {/* Actions: Download Image & Telemetry */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-cyan-500/20">
               <button
                 onClick={() => {
                   playPassSound();
@@ -815,10 +825,10 @@ export const CloudConsoleTab: React.FC = () => {
                   a.download = `${selectedVaultItem.serial}_defect_capture.png`;
                   a.click();
                 }}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                className="btn-cyber-primary flex items-center gap-1.5 cursor-pointer text-xs"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download Image (.PNG)</span>
+                <span>DOWNLOAD CAPTURE (.PNG)</span>
               </button>
 
               <button
@@ -833,10 +843,10 @@ export const CloudConsoleTab: React.FC = () => {
                   a.download = `${selectedVaultItem.serial}_telemetry.json`;
                   a.click();
                 }}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                className="btn-cyber-secondary flex items-center gap-1.5 cursor-pointer text-xs"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Export Telemetry (.JSON)</span>
+                <span>EXPORT FORENSIC JSON</span>
               </button>
             </div>
           </div>

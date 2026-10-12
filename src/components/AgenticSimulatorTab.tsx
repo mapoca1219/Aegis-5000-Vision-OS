@@ -22,6 +22,7 @@ import {
   playRejectSound,
   playScanClickSound,
 } from '../utils/soundEffects';
+import logoImg from '../assets/Logo.jpeg';
 
 export const AgenticSimulatorTab: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -296,26 +297,36 @@ export const AgenticSimulatorTab: React.FC = () => {
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Device Header */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-purple-600/30 text-purple-400 border border-purple-500/40 flex items-center justify-center font-bold text-lg">
-            🤖
+      <div className="p-4 md:p-5 rounded-2xl metallic-panel-glow flex flex-wrap items-center justify-between gap-4 relative overflow-hidden shadow-2xl">
+        <span className="hud-corner hud-corner-tl" />
+        <span className="hud-corner hud-corner-tr" />
+        <span className="hud-corner hud-corner-bl" />
+        <span className="hud-corner hud-corner-br" />
+
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-full overflow-hidden p-0.5 bg-gradient-to-b from-slate-200 via-slate-400 to-slate-700 shadow-[0_0_20px_rgba(0,240,255,0.4)] ring-1 ring-cyan-400/50 flex items-center justify-center shrink-0">
+            <img src={logoImg} alt="Aegis-5000 Badge" className="w-full h-full object-cover rounded-full" />
           </div>
           <div>
-            <h2 className="font-extrabold text-base text-white uppercase tracking-wide flex items-center gap-2">
-              Agentic Closed-Loop Robotic Actuator
-            </h2>
-            <p className="text-xs text-slate-400">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="font-display font-extrabold text-base md:text-xl text-white uppercase tracking-wider flex items-center gap-2">
+                Agentic Closed-Loop Robotic Actuator
+              </h2>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 font-bold">
+                PHYSICAL AI KINEMATICS
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 font-mono mt-0.5">
               Active perception loop: camera gimbal reorientation, optical polarization, and pneumatic rejection
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => setSoundOn(!soundOn)}
-            className="p-2.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:text-white cursor-pointer"
+            className="p-2.5 rounded-xl btn-cyber-secondary cursor-pointer"
             title="Toggle Sound"
           >
             {soundOn ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4" />}
@@ -323,14 +334,14 @@ export const AgenticSimulatorTab: React.FC = () => {
 
           <button
             onClick={() => setAutoRunning(!autoRunning)}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase flex items-center gap-2 shadow-lg transition-all cursor-pointer ${
+            className={`px-4 py-2.5 rounded-xl font-display font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-xl ${
               autoRunning
-                ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-500/25'
+                ? 'bg-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.5)] animate-pulse'
+                : 'btn-cyber-primary'
             }`}
           >
-            {autoRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            <span>{autoRunning ? 'Pause Cycle' : 'Autonomous Cycle'}</span>
+            {autoRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 text-slate-950" />}
+            <span>{autoRunning ? 'PAUSE CYCLE' : 'AUTONOMOUS CYCLE'}</span>
           </button>
         </div>
       </div>
@@ -339,29 +350,34 @@ export const AgenticSimulatorTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left: Interactive 2D Robotics Canvas (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-xs font-bold text-white uppercase flex items-center gap-2">
-                <Crosshair className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="p-4 md:p-5 rounded-2xl metallic-panel space-y-3.5 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <span className="text-xs font-display font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Crosshair className="w-4 h-4 text-cyan-400" />
                 <span>Kinematic Sensor Head & Conveyor Simulation</span>
               </span>
-              <span className="text-[11px] font-mono text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded border border-purple-500/30">
+              <span className="text-[11px] font-mono text-cyan-300 bg-cyan-950/80 px-2.5 py-0.5 rounded border border-cyan-500/40 font-bold">
                 GIMBAL: {panAngle > 0 ? `+${panAngle}°` : `${panAngle}°`}
               </span>
             </div>
 
-            {/* Canvas */}
-            <div className="relative rounded-xl overflow-hidden bg-black border border-slate-800 aspect-[3/2] flex items-center justify-center">
+            {/* Canvas Container with HUD corners */}
+            <div className="relative rounded-2xl overflow-hidden bg-black border border-slate-700/80 aspect-[3/2] flex items-center justify-center shadow-2xl">
+              <span className="hud-corner hud-corner-tl" />
+              <span className="hud-corner hud-corner-tr" />
+              <span className="hud-corner hud-corner-bl" />
+              <span className="hud-corner hud-corner-br" />
+
               <canvas ref={canvasRef} className="w-full h-full object-contain" />
 
               {/* Status overlay banner */}
-              <div className="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-mono flex items-center gap-2">
+              <div className="absolute bottom-3 left-3 bg-[#030712]/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-700 text-xs font-mono flex items-center gap-2.5 shadow-xl">
                 <span
                   className={`w-2.5 h-2.5 rounded-full ${
-                    glareDetected ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'
+                    glareDetected ? 'bg-amber-400 animate-ping shadow-[0_0_8px_#f59e0b]' : 'bg-emerald-400 shadow-[0_0_8px_#10b981]'
                   }`}
                 />
-                <span className="text-slate-200">
+                <span className="text-slate-100 font-semibold">
                   {glareDetected
                     ? 'GLARE DETECTED (54% CERTAINTY - AMBIGUOUS)'
                     : 'ANGLE COMPENSATED (96% CERTAINTY - CONFIRMED)'}
@@ -370,29 +386,29 @@ export const AgenticSimulatorTab: React.FC = () => {
             </div>
 
             {/* Quick Tactile Action Buttons */}
-            <div className="grid grid-cols-3 gap-2 text-xs font-semibold">
+            <div className="grid grid-cols-3 gap-2.5 text-xs font-display font-bold uppercase tracking-wider">
               <button
                 onClick={handleSimulateGlare}
-                className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-500 text-amber-300 flex flex-col items-center gap-1 transition-all cursor-pointer"
+                className="p-3 rounded-xl btn-cyber-secondary hover:border-amber-500/80 hover:text-amber-300 flex flex-col items-center gap-1 transition-all cursor-pointer shadow-md"
               >
-                <span>☀️ Induce Specular Glare</span>
-                <span className="text-[10px] text-slate-500 font-normal">Simulate ambiguity</span>
+                <span>☀️ Induce Glare</span>
+                <span className="text-[10px] text-slate-400 font-mono normal-case tracking-normal">Simulate ambiguity</span>
               </button>
 
               <button
                 onClick={handleCompensate}
-                className="p-2.5 rounded-xl bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/60 text-purple-200 flex flex-col items-center gap-1 transition-all cursor-pointer"
+                className="p-3 rounded-xl btn-cyber-primary text-slate-950 flex flex-col items-center gap-1 transition-all cursor-pointer shadow-xl"
               >
                 <span>🔄 Auto-Gimbal (+18.5°)</span>
-                <span className="text-[10px] text-purple-300 font-normal">Reorient sensor head</span>
+                <span className="text-[10px] text-slate-950 font-mono normal-case tracking-normal font-semibold">Reorient sensor head</span>
               </button>
 
               <button
                 onClick={handleFirePiston}
-                className="p-2.5 rounded-xl bg-rose-950/60 border border-rose-500/40 hover:bg-rose-900/60 text-rose-200 flex flex-col items-center gap-1 transition-all cursor-pointer"
+                className="p-3 rounded-xl btn-cyber-secondary hover:border-rose-500/80 hover:text-rose-300 flex flex-col items-center gap-1 transition-all cursor-pointer shadow-md"
               >
-                <span>💥 Pneumatic PLC Piston</span>
-                <span className="text-[10px] text-rose-300 font-normal">Eject defective piece</span>
+                <span>💥 Pneumatic Piston</span>
+                <span className="text-[10px] text-slate-400 font-mono normal-case tracking-normal">Eject defective piece</span>
               </button>
             </div>
           </div>
@@ -401,34 +417,34 @@ export const AgenticSimulatorTab: React.FC = () => {
         {/* Right: Manual Actuator Sliders & Live Telemetry (5 Cols) */}
         <div className="lg:col-span-5 space-y-4">
           {/* Telemetry Card */}
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-xl">
-            <span className="text-xs font-bold text-white uppercase block border-b border-slate-800 pb-2">
+          <div className="p-4 md:p-5 rounded-2xl metallic-panel space-y-3.5 shadow-xl">
+            <span className="text-xs font-display font-bold text-white uppercase tracking-wider block border-b border-slate-800 pb-2.5">
               Active Perception Telemetry
             </span>
 
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2.5 text-xs">
               <div className="flex justify-between text-slate-300">
-                <span>Measurement Certainty</span>
+                <span className="font-mono text-slate-400 uppercase text-[11px]">Measurement Certainty</span>
                 <span
-                  className={`font-mono font-bold ${
-                    confidence > 80 ? 'text-emerald-400' : 'text-amber-400'
+                  className={`font-mono font-bold text-sm ${
+                    confidence > 80 ? 'text-emerald-400 text-glow-emerald' : 'text-amber-400 text-glow-amber'
                   }`}
                 >
                   {confidence}%
                 </span>
               </div>
-              <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+              <div className="w-full bg-[#030712] rounded-full h-2 overflow-hidden border border-slate-800">
                 <div
                   className={`h-full transition-all duration-500 ${
-                    confidence > 80 ? 'bg-emerald-500' : 'bg-amber-500'
+                    confidence > 80 ? 'bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-[0_0_10px_#10b981]' : 'bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_10px_#f59e0b]'
                   }`}
                   style={{ width: `${confidence}%` }}
                 />
               </div>
 
-              <div className="flex justify-between text-slate-400 pt-2 border-t border-slate-800 font-mono">
+              <div className="flex justify-between text-slate-400 pt-2.5 border-t border-slate-800 font-mono">
                 <span>Measured Fissure</span>
-                <span className="text-white font-bold">{defectLengthMm} mm</span>
+                <span className="text-white font-bold text-glow-cyan">{defectLengthMm} mm</span>
               </div>
 
               <div className="flex justify-between text-slate-400 font-mono">
@@ -440,25 +456,25 @@ export const AgenticSimulatorTab: React.FC = () => {
                 <span>Ejection Piston</span>
                 <span
                   className={`font-bold ${
-                    pneumaticPistonFired ? 'text-rose-400 animate-pulse' : 'text-slate-500'
+                    pneumaticPistonFired ? 'text-rose-400 animate-pulse text-glow-rose' : 'text-slate-500'
                   }`}
                 >
-                  {pneumaticPistonFired ? 'ACTIVATED' : 'ARMED'}
+                  {pneumaticPistonFired ? 'ACTIVATED [EJECT]' : 'ARMED (STANDBY)'}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Manual Sliders */}
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-xl">
-            <span className="text-xs font-bold text-white uppercase block border-b border-slate-800 pb-2">
+          <div className="p-4 md:p-5 rounded-2xl metallic-panel space-y-3.5 shadow-xl">
+            <span className="text-xs font-display font-bold text-white uppercase tracking-wider block border-b border-slate-800 pb-2.5">
               Manual Actuator Sliders
             </span>
 
             {/* Pan Slider */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-300">
-                <span>Pan Angle</span>
+                <span className="font-mono text-[11px] uppercase text-slate-400">Pan Angle</span>
                 <span className="font-mono text-cyan-400 font-bold">{panAngle.toFixed(1)}°</span>
               </div>
               <input
@@ -471,14 +487,14 @@ export const AgenticSimulatorTab: React.FC = () => {
                   setPanAngle(Number(e.target.value));
                   if (Math.abs(Number(e.target.value)) > 10) setGlareDetected(false);
                 }}
-                className="w-full accent-cyan-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-cyan-400 h-1.5 bg-[#030712] rounded-lg cursor-pointer"
               />
             </div>
 
             {/* Polarizer Angle */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-300">
-                <span>Cross-Polarizer Filter</span>
+                <span className="font-mono text-[11px] uppercase text-slate-400">Cross-Polarizer Filter</span>
                 <span className="font-mono text-emerald-400 font-bold">{polarizerAngle}°</span>
               </div>
               <input
@@ -491,15 +507,15 @@ export const AgenticSimulatorTab: React.FC = () => {
                   setPolarizerAngle(Number(e.target.value));
                   if (Number(e.target.value) >= 45) setGlareDetected(false);
                 }}
-                className="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-emerald-400 h-1.5 bg-[#030712] rounded-lg cursor-pointer"
               />
             </div>
 
             {/* Lens Zoom */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-300">
-                <span>Lens Magnification (Zoom)</span>
-                <span className="font-mono text-purple-400 font-bold">{zoomLevel.toFixed(1)}x</span>
+                <span className="font-mono text-[11px] uppercase text-slate-400">Lens Magnification (Zoom)</span>
+                <span className="font-mono text-cyan-300 font-bold">{zoomLevel.toFixed(1)}x</span>
               </div>
               <input
                 type="range"
@@ -508,18 +524,18 @@ export const AgenticSimulatorTab: React.FC = () => {
                 step="0.1"
                 value={zoomLevel}
                 onChange={(e) => setZoomLevel(Number(e.target.value))}
-                className="w-full accent-purple-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-cyan-400 h-1.5 bg-[#030712] rounded-lg cursor-pointer"
               />
             </div>
           </div>
 
           {/* Interactive Tool Call Inspector */}
-          <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs font-mono">
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] uppercase font-bold text-slate-500">MCP Actuator Command</span>
-              <span className="text-[10px] text-emerald-400">STATUS 200 OK</span>
+          <div className="p-4 rounded-2xl metallic-panel space-y-2 text-xs font-mono shadow-xl">
+            <div className="flex items-center justify-between text-slate-400 border-b border-slate-800 pb-2">
+              <span className="text-[10px] uppercase font-bold text-slate-400">MCP Actuator Protocol Command</span>
+              <span className="text-[10px] text-emerald-400 font-bold">STATUS 200 OK</span>
             </div>
-            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-purple-300 overflow-x-auto">
+            <div className="p-3 rounded-xl bg-[#030712] border border-slate-800 text-[11px] text-cyan-300 overflow-x-auto shadow-inner">
               <code>
                 {`aegis_actuator_exec({ pan: ${panAngle.toFixed(1)}, polarizer: ${polarizerAngle}, piston: ${pneumaticPistonFired} })`}
               </code>
