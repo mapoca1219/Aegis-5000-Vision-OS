@@ -7,12 +7,6 @@
 > **Working Demonstration / Live Web Link:** https://aegis-5000-vision-os-kappa.vercel.app/  
 > **Creator / Team Lead:** Marco Polo Caicedo  
 
----
-
-## Target Award Tracks:
-1. **Overall Awards (1st, 2nd, 3rd Place — up to $5,000)**
-2. **Special Award: Best Use of COOL Award ($1,000)**
-3. **Special Award: Agentic Vision Award ($1,000)**
 
 ---
 
@@ -99,3 +93,4 @@ $$\text{Perception (OpenCV 5)} \longrightarrow \text{Decision (Confidence Evalua
 1. **Physical Strobe Illumination Integration**: Synchronizing high-intensity directional strobe LEDs via hardware GPIO TTL triggers to eliminate high-frequency conveyor motion blur.
 2. **Multi-Camera Graviton4 Swarm Orchestration**: Expanding the COOL architecture to synchronize arrays of 12 GigE cameras running across distributed Graviton4 worker nodes.
 3. **On-Device Edge Deployment**: Porting the compiled OpenCV 5 G-API graph directly to embedded Arm64 edge silicon (such as AWS Graviton-powered edge gateways) for ultra-low microsecond physical plant networks.
+
