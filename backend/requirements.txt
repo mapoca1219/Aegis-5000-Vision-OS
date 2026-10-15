@@ -1,0 +1,10 @@
+# ==============================================================================
+# Aegis-5000 Vision OS: Backend Dependencies (OpenCV 5 & AWS Cloud Telemetry)
+# Target: AWS Graviton4 (Arm64) / COOL Environment
+# ==============================================================================
+opencv-python-headless>=4.10.0.84
+numpy>=1.26.0
+boto3>=1.34.0
+botocore>=1.34.0
+pydantic>=2.5.0
+
