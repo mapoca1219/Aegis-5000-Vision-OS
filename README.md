@@ -299,7 +299,50 @@ aws cloudformation create-stack \
 
 ---
 
-## 📁 7. Repository File Structure
+## 🖥️ 7. Executive Vision OS HMI Suite & Interactive Modules
+
+The Aegis-5000 Vision OS web application provides a unified, industrial-grade 16:9 flat operating system console with live hardware and simulation capabilities across 6 specialized stations:
+
+### 1. Executive OS Console (`src/components/ExecutiveDashboard.tsx`)
+- **Optical Scanner Station**: Dual-mode viewport supporting **Live USB Optical Webcams** via WebRTC / `getUserMedia` or a high-density synthetic micro-PCB simulator with sub-pixel bounding boxes (`PIN-SHORT`, `BRIDGING`, `VOID`). Features mechanical Gimbal Pan/Tilt sliders and Brewster-angle orientation.
+- **OpenCV 5 Algorithm Workbench**: Live 256-bin pixel intensity histogram with real-time sliding Gaussian distribution, dual Canny hysteresis markers ($T_{\text{low}}$, $T_{\text{high}}$), adaptive CLAHE contrast, and 6-stage pipeline filter toggles (`COLOR`, `GRAY`, `CANNY`, `THERMAL`, `CLAHE`, `MORPH`).
+- **Presenter Facecam**: Integrated natural-lighting presenter stream designed for live competition demonstrations and Devpost recordings.
+- **Autonomous Agentic Telemetry**: Real-time yield monitoring (98.6%), pneumatic pressure gauge (6.4 bar), and one-click `AUTOPILOT` closed-loop remediation trigger.
+- **Dynamic Production Inspection Log**: Live-updated table detailing specimen IDs, defect classifications, ISO-9001 tolerance specs, sub-pixel metric measurements, and real-time status badges (`PASS`, `REJECT`, `QUARANTINE`).
+
+### 2. Optical Scanner Station (`src/components/VisionLabTab.tsx`)
+- Multi-specimen selector (Silicon Wafer Die, High-Density PCB, Solar Cell, Turbine Airfoil).
+- Sub-pixel contour analysis with calibrated measurement overlays (down to 0.02 mm resolution).
+- Hardware emergency stop (E-STOP) interlock and continuous inspection scanning mode.
+
+### 3. OpenCV 5 G-API Workbench (`src/components/PipelineLabTab.tsx`)
+- Interactive convolution kernel matrix tuning (**`1x1`**, **`3x3`**, **`5x5`**, **`7x7`**) for noise suppression and detail preservation.
+- Directional Sobel spatial derivatives (**`X + Y`**, **`X-Axis`**, **`Y-Axis`**) for isolating horizontal buses vs. vertical micro-pins.
+- Real-time pixel probe with crosshair coordinate inspector and intensity readout.
+
+### 4. Agentic Closed-Loop Simulator (`src/components/AgenticSimulatorTab.tsx`)
+- Animated 2D kinematic simulation of the 4-DOF robotic arm, optical camera head, motorized cross-polarizer, conveyor belt, and pneumatic solenoid ejector.
+- Step-by-step state machine: Ambiguity Detection (54% confidence) ➔ MCP Tool Calling ➔ Gimbal Tilt & Polarizer Rotation ➔ High-Confidence Verification (96%) ➔ Pneumatic Ejection.
+
+### 5. AWS Graviton4 + COOL Benchmark (`src/components/CoolBenchmarkTab.tsx`)
+- Live comparative stress test (248 FPS vs. 87 FPS on x86).
+- Interactive production volume slider (1M–50M parts/month) with instant ROI and carbon savings calculations.
+- Direct JSON export of hardware benchmark telemetry.
+
+### 6. Amazon S3 Defect Vault & Cloud Console (`src/components/CloudConsoleTab.tsx`)
+- Real-time latency ping monitors (Factory Gateway, AWS IoT Core, Graviton4 Cluster, S3 Vault).
+- Live defect gallery with interactive specimen thumbnails, defect coordinates, and 256-bit KMS key validation.
+- ISO-9001 compliant forensic audit log exporter.
+
+### 7. Global Modals & System Tools
+- **Executive Pitch Tour (`src/components/PitchShowcaseModal.tsx`)**: 5-stage automated pitch presentation with interactive remediation demo and confetti celebration.
+- **Factory Settings & Calibration (`src/components/SettingsModal.tsx`)**: Regional AWS deployment selection, target frame rates (120–300 FPS), pneumatic pressure limits, and Web Audio API acoustic haptics.
+- **System Diagnostics Suite (`src/components/SystemDiagnosticsModal.tsx`)**: Live automated pre-flight testing of G-API graphs, ARM64 NEON vectors, PLC actuation buses, and S3 vaults.
+- **Alarms & Event Drawer (`src/components/NotificationsDrawer.tsx`)**: Centralized industrial alarm dispatcher with severity tagging and dismissal.
+
+---
+
+## 📁 8. Repository File Structure
 
 ```
 Aegis-5000-Vision-OS/
@@ -321,24 +364,27 @@ Aegis-5000-Vision-OS/
 ├── infrastructure/
 │   └── graviton4_cloudformation.yaml # AWS CloudFormation template for Graviton4 + COOL
 └── src/
-    ├── App.tsx                     # Main dashboard container & tab navigation
+    ├── App.tsx                     # Main OS shell, sidebar navigation, and global shortcuts
     ├── components/
-    │   ├── VisionLabTab.tsx        # Optical Scanner with live webcam & HMI
-    │   ├── PipelineLabTab.tsx      # OpenCV 5 algorithm tuning & 256-bin histogram
+    │   ├── ExecutiveDashboard.tsx  # 16:9 Industrial Console, Live USB stream, and dynamic histogram
+    │   ├── VisionLabTab.tsx        # Optical Scanner with live webcam & sub-pixel contours
+    │   ├── PipelineLabTab.tsx      # OpenCV 5 G-API tuning (1x1..7x7 kernels, directional Sobel)
     │   ├── AgenticSimulatorTab.tsx # 2D animated kinematic robotic loop & PLC ejection
     │   ├── CoolBenchmarkTab.tsx    # AWS Graviton4 + COOL benchmark studio & OPEX calculator
     │   ├── CloudConsoleTab.tsx     # Latency monitor, S3 vault gallery & ISO-9001 certs
-    │   └── PitchShowcaseModal.tsx  # 5-stop interactive pitch tour modal for judges
+    │   ├── PitchShowcaseModal.tsx  # 5-stop interactive pitch tour modal for judges
+    │   ├── SettingsModal.tsx       # Calibration suite, AWS region, and tactile audio toggles
+    │   ├── SystemDiagnosticsModal.tsx # Automated pre-flight system diagnostics runner
+    │   └── NotificationsDrawer.tsx # Industrial alert feed and telemetry event drawer
     ├── utils/
     │   ├── visionEngine.ts         # High-fidelity OpenCV 5 pipeline & synthetic wafer generator
-    │   └── soundEffects.ts         # Web Audio API tactile industrial feedback
-    └── types/
-        └── index.ts                # TypeScript interfaces and telemetry contracts
+    │   └── soundEffects.ts         # Web Audio API tactile industrial acoustic feedback
+    └── types.ts                    # TypeScript interfaces and telemetry contracts
 ```
 
 ---
 
-## 📜 8. License & Acknowledgments
+## 📜 9. License & Acknowledgments
 
 - **OpenCV**: Built proudly for the **OpenCV AI Competition 2026, powered by AWS**.
 - **AWS**: Powered by AWS Graviton4 Arm64 architecture and the Cloud-Optimized OpenCV Library (COOL).

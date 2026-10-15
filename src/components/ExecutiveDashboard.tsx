@@ -551,17 +551,90 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     }, 100);
   };
 
+function getStatusBadgeClass(status: 'PASS' | 'REJECT' | 'QUARANTINE'): string {
+  if (status === 'PASS') return 'bg-emerald-950/80 border-emerald-500/50 text-emerald-400';
+  if (status === 'REJECT') return 'bg-rose-950/80 border-rose-500/50 text-rose-400';
+  return 'bg-amber-950/80 border-amber-500/50 text-amber-400';
+}
+
+  // Real-Time Production Inspection Log State
+  const initialLogRows = [
+    {
+      rowId: 'log-01',
+      id: 'AEGIS-INS-4928',
+      telemetry: 'QFP-64 Lead Pin Bridging (Sub-pixel CLAHE + Canny)',
+      spec: '< 10 µm (IPC-A-610G)',
+      size: '24.8 µm',
+      time: '14:28:12.842',
+      status: 'REJECT' as const,
+    },
+    {
+      rowId: 'log-02',
+      id: 'AEGIS-INS-4927',
+      telemetry: 'SMD-0402 Capacitor Solder Void Rate: 1.2% (Nominal)',
+      spec: '< 15 % Area Void',
+      size: '1.2 µm',
+      time: '14:28:09.115',
+      status: 'PASS' as const,
+    },
+    {
+      rowId: 'log-03',
+      id: 'AEGIS-INS-4926',
+      telemetry: 'Silicon Die Trace Micro-Fracture / Delamination',
+      spec: '0.0 µm (Zero Tolerance)',
+      size: '33.4 µm',
+      time: '14:28:05.620',
+      status: 'REJECT' as const,
+    },
+    {
+      rowId: 'log-04',
+      id: 'AEGIS-INS-4925',
+      telemetry: 'Specular Glare Ambiguity / Brewster Angle Mismatch',
+      spec: 'Confidence ≥ 85%',
+      size: '18.5 µm',
+      time: '14:28:02.390',
+      status: 'QUARANTINE' as const,
+    },
+    {
+      rowId: 'log-05',
+      id: 'AEGIS-INS-4924',
+      telemetry: 'BGA Solder Ball Coplanarity & Volume Deviation',
+      spec: '< 20 µm Coplanar',
+      size: '21.6 µm',
+      time: '14:27:58.910',
+      status: 'REJECT' as const,
+    },
+  ];
+
+  const [logRows, setLogRows] = useState(initialLogRows);
+
   // Trigger Autonomous Agentic Cycle from Dashboard
   const handleTriggerAgentic = () => {
     if (soundEnabled) playGimbalMoveSound();
     setGimbalOrientation(18.5);
     setPanVal(2);
     setTiltVal(-1);
-    setPneumaticPressure(6.2);
-    setInspectionYield(98.4);
+    setPneumaticPressure(6.4);
+    setInspectionYield(98.6);
+
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).padStart(3, '0')}`;
+    const randId = 4930 + (crypto.getRandomValues(new Uint32Array(1))[0] % 50);
+    const newEntry = {
+      rowId: `log-${Date.now()}`,
+      id: `AEGIS-INS-${randId}`,
+      telemetry: 'Autonomous Gimbal Sweep & Polarizer Angle Adjusted (45°)',
+      spec: 'Specular Resolved',
+      size: '0.38 mm',
+      time: timeStr,
+      status: 'PASS' as const,
+    };
+
+    setLogRows((prev) => [newEntry, ...prev.slice(0, 5)]);
+
     setTimeout(() => {
-      if (soundEnabled) playRejectSound();
-    }, 800);
+      if (soundEnabled) playPassSound();
+    }, 600);
   };
 
   // 6 Pipeline Stages matching reference screenshot
@@ -572,15 +645,6 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     { id: 4, label: '4. Stage 4 Pipeline', sub: 'Canny Moments', icon: Eye, mode: 'canny' as const },
     { id: 5, label: '5. Stage 5 Processing', sub: 'Thermal Heatmap', icon: Flame, mode: 'thermal' as const },
     { id: 6, label: '6. Stage 6 Pipeline', sub: 'Morphology', icon: Settings, mode: 'morph' as const },
-  ];
-
-  // Inspection Log Rows matching screenshot
-  const logRows = [
-    { rowId: 'log-01', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '25 µm', time: '2026-05-06', status: 'REJECT' },
-    { rowId: 'log-02', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '1.2 µm', time: '2026-05-06', status: 'PASS' },
-    { rowId: 'log-03', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '33 µm', time: '2026-05-06', status: 'REJECT' },
-    { rowId: 'log-04', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '25 µm', time: '2026-05-06', status: 'QUARANTINE' },
-    { rowId: 'log-05', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '20 µm', time: '2026-05-06', status: 'REJECT' },
   ];
 
   return (
@@ -1065,11 +1129,12 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               <table className="w-full text-left text-[10px] font-mono">
                 <thead className="bg-[#090F1C] text-slate-400 sticky top-0 border-b border-slate-800 uppercase text-[9px]">
                   <tr>
-                    <th className="py-1.5 px-3">INSPECTION</th>
-                    <th className="py-1.5 px-3">TELEMETRY</th>
-                    <th className="py-1.5 px-3">INSPECTION</th>
-                    <th className="py-1.5 px-3">DEFECT SIZE</th>
-                    <th className="py-1.5 px-3 text-right">TIMESTAMPS</th>
+                    <th className="py-1.5 px-3">INSPECTION ID</th>
+                    <th className="py-1.5 px-3">TELEMETRY / DEFECT ANALYSIS</th>
+                    <th className="py-1.5 px-3">TOLERANCE (SPEC)</th>
+                    <th className="py-1.5 px-3">MEASURED SIZE</th>
+                    <th className="py-1.5 px-3 text-center">STATUS</th>
+                    <th className="py-1.5 px-3 text-right">TIMESTAMP</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/50 text-slate-300">
@@ -1090,8 +1155,12 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                       <td className="py-1.5 px-3 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <span className="font-bold text-white">{row.size}</span>
-                          <span className="w-3 h-2 rounded-xs bg-amber-500/80 inline-block" />
                         </div>
+                      </td>
+                      <td className="py-1.5 px-3 text-center whitespace-nowrap">
+                        <span className={`px-2 py-0.5 rounded text-[8.5px] font-bold border ${getStatusBadgeClass(row.status)}`}>
+                          {row.status}
+                        </span>
                       </td>
                       <td className="py-1.5 px-3 text-right text-slate-500 whitespace-nowrap">
                         {row.time}
@@ -1108,13 +1177,13 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-950/40 border border-emerald-500/40 text-[9px] font-mono text-emerald-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span className="font-bold">Uplink Secure</span>
-                  <span className="text-emerald-500/80">• 258-bit S3 metadata identifiers</span>
+                  <span className="text-emerald-500/80">• 256-bit AES-GCM / KMS Envelope Encryption</span>
                 </div>
 
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-amber-950/40 border border-amber-500/40 text-[9px] font-mono text-amber-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                   <span className="font-bold">Vault Active</span>
-                  <span className="text-amber-500/80">• 256-bit S3 metadata identifiers</span>
+                  <span className="text-amber-500/80">• Amazon S3 Forensic Bucket Connected</span>
                 </div>
               </div>
 
