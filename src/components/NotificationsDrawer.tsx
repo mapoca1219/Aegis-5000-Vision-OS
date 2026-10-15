@@ -3,10 +3,6 @@ import {
   X,
   Bell,
   CheckCircle2,
-  AlertTriangle,
-  Zap,
-  Shield,
-  HardDrive,
   Trash2,
 } from 'lucide-react';
 import { playScanClickSound } from '../utils/soundEffects';
@@ -18,6 +14,19 @@ interface NotificationItem {
   desc: string;
   time: string;
   read: boolean;
+}
+
+function getTypeBadgeClass(type: NotificationItem['type']): string {
+  switch (type) {
+    case 'CRITICAL':
+      return 'bg-rose-950 text-rose-300 border border-rose-500/40';
+    case 'SUCCESS':
+      return 'bg-emerald-950 text-emerald-300 border border-emerald-500/40';
+    case 'METRIC':
+      return 'bg-cyan-950 text-cyan-300 border border-cyan-500/40';
+    default:
+      return 'bg-slate-800 text-slate-300';
+  }
 }
 
 interface NotificationsDrawerProps {
@@ -130,17 +139,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span
-                    className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                      item.type === 'CRITICAL'
-                        ? 'bg-rose-950 text-rose-300 border border-rose-500/40'
-                        : item.type === 'SUCCESS'
-                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
-                        : item.type === 'METRIC'
-                        ? 'bg-cyan-950 text-cyan-300 border border-cyan-500/40'
-                        : 'bg-slate-800 text-slate-300'
-                    }`}
-                  >
+                  <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${getTypeBadgeClass(item.type)}`}>
                     {item.type}
                   </span>
                   <span className="text-[10px] text-slate-500">{item.time}</span>
@@ -174,3 +173,4 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
     </div>
   );
 };
+

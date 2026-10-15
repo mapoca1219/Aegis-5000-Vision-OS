@@ -1,34 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Activity,
-  Sliders,
   Layers,
-  Cpu,
-  Zap,
-  Shield,
-  Award,
   Sparkles,
   Camera,
   Share2,
-  MoreHorizontal,
-  Grid,
   ChevronDown,
   Info,
-  CheckCircle2,
-  AlertTriangle,
   Play,
-  RotateCcw,
   Eye,
   Settings,
-  Database,
   Radio,
   Bell,
   Gauge,
-  HelpCircle,
-  Maximize2,
-  Download,
   Flame,
-  FileSpreadsheet,
 } from 'lucide-react';
 import {
   playScanClickSound,
@@ -36,6 +21,249 @@ import {
   playRejectSound,
   playGimbalMoveSound,
 } from '../utils/soundEffects';
+
+function applyGrayscale(data: Uint8ClampedArray): void {
+  const len = data.length;
+  for (let i = 0; i < len; i += 4) {
+    const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    data[i] = lum;
+    data[i + 1] = lum;
+    data[i + 2] = lum;
+  }
+}
+
+function applyClahe(data: Uint8ClampedArray, contrastLimit: number): void {
+  const len = data.length;
+  const boost = contrastLimit / 35.0;
+  for (let i = 0; i < len; i += 4) {
+    data[i] = Math.min(255, Math.max(0, (data[i] - 128) * boost + 128));
+    data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * boost + 128));
+    data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * boost + 128));
+  }
+}
+
+function applyCanny(data: Uint8ClampedArray, w: number, h: number, threshold: number): void {
+  const thresh = threshold * 1.4;
+  for (let y = 0; y < h - 1; y++) {
+    for (let x = 0; x < w - 1; x++) {
+      const idx = (y * w + x) * 4;
+      const rightIdx = (y * w + (x + 1)) * 4;
+      const downIdx = ((y + 1) * w + x) * 4;
+
+      const lCenter = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+      const lRight = 0.299 * data[rightIdx] + 0.587 * data[rightIdx + 1] + 0.114 * data[rightIdx + 2];
+      const lDown = 0.299 * data[downIdx] + 0.587 * data[downIdx + 1] + 0.114 * data[downIdx + 2];
+
+      const grad = Math.abs(lRight - lCenter) + Math.abs(lDown - lCenter);
+      if (grad > thresh) {
+        data[idx] = 0;
+        data[idx + 1] = 240;
+        data[idx + 2] = 255;
+      } else {
+        data[idx] = 6;
+        data[idx + 1] = 10;
+        data[idx + 2] = 20;
+      }
+    }
+  }
+}
+
+function applyThermal(data: Uint8ClampedArray): void {
+  const len = data.length;
+  for (let i = 0; i < len; i += 4) {
+    const l = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    if (l < 45) {
+      data[i] = Math.round(l * 1.5);
+      data[i + 1] = 0;
+      data[i + 2] = Math.round(90 + l * 2.5);
+    } else if (l < 100) {
+      const norm = (l - 45) / 55;
+      data[i] = Math.round(68 + norm * 150);
+      data[i + 1] = 0;
+      data[i + 2] = Math.round(200 - norm * 80);
+    } else if (l < 165) {
+      const norm = (l - 100) / 65;
+      data[i] = Math.round(218 + norm * 37);
+      data[i + 1] = Math.round(norm * 140);
+      data[i + 2] = 0;
+    } else if (l < 225) {
+      const norm = (l - 165) / 60;
+      data[i] = 255;
+      data[i + 1] = Math.round(140 + norm * 115);
+      data[i + 2] = Math.round(norm * 40);
+    } else {
+      const norm = (l - 225) / 30;
+      data[i] = 255;
+      data[i + 1] = 255;
+      data[i + 2] = Math.round(40 + norm * 215);
+    }
+  }
+}
+
+function applyMorph(data: Uint8ClampedArray): void {
+  const len = data.length;
+  for (let i = 0; i < len; i += 4) {
+    const l = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    if (l > 170) {
+      data[i] = 16;
+      data[i + 1] = 240;
+      data[i + 2] = 160;
+    } else {
+      const dim = Math.round(l * 0.15);
+      data[i] = dim;
+      data[i + 1] = dim;
+      data[i + 2] = dim;
+    }
+  }
+}
+
+function applyPixelFilter(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  filterMode: string,
+  contrastLimit: number,
+  cannyThreshold1: number
+): void {
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+
+  if (filterMode === 'gray') {
+    applyGrayscale(data);
+  } else if (filterMode === 'clahe') {
+    applyClahe(data, contrastLimit);
+  } else if (filterMode === 'canny') {
+    applyCanny(data, w, h, cannyThreshold1);
+  } else if (filterMode === 'thermal') {
+    applyThermal(data);
+  } else if (filterMode === 'morph') {
+    applyMorph(data);
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+}
+
+function drawSyntheticPcb(ctx: CanvasRenderingContext2D, w: number, h: number): void {
+  const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+  bgGrad.addColorStop(0, '#0a2318');
+  bgGrad.addColorStop(0.5, '#071b12');
+  bgGrad.addColorStop(1, '#05140d');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Copper Bus Traces
+  ctx.strokeStyle = '#1b4d36';
+  ctx.lineWidth = 2.5;
+  for (let y = 30; y < h; y += 40) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w * 0.35, y);
+    ctx.lineTo(w * 0.45, y + 20);
+    ctx.lineTo(w, y + 20);
+    ctx.stroke();
+  }
+
+  // Central QFP Chip (AEGIS-SOC-5)
+  const icX = w * 0.36;
+  const icY = h * 0.28;
+  const icW = w * 0.32;
+  const icH = h * 0.44;
+
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  const numPins = 14;
+  for (let i = 0; i < numPins; i++) {
+    const py = icY + (icH / (numPins + 1)) * (i + 1);
+    ctx.beginPath();
+    ctx.moveTo(icX - 16, py);
+    ctx.lineTo(icX, py);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(icX + icW, py);
+    ctx.lineTo(icX + icW + 16, py);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(icX, icY, icW, icH);
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(icX, icY, icW, icH);
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = 'bold 9px monospace';
+  ctx.fillText('AEGIS-SOC-5', icX + 18, icY + icH * 0.45);
+  ctx.fillText('ARM64 NEON', icX + 18, icY + icH * 0.6);
+
+  // SMD Components
+  const smdComponents = [
+    { x: w * 0.12, y: h * 0.22, w: 26, h: 48, label: 'C10' },
+    { x: w * 0.12, y: h * 0.52, w: 26, h: 48, label: 'C13' },
+    { x: w * 0.78, y: h * 0.2, w: 54, h: 90, label: 'U5' },
+    { x: w * 0.75, y: h * 0.65, w: 20, h: 36, label: 'R21' },
+    { x: w * 0.82, y: h * 0.65, w: 20, h: 36, label: 'R22' },
+  ];
+  smdComponents.forEach((comp) => {
+    ctx.fillStyle = '#78716c';
+    ctx.fillRect(comp.x, comp.y, comp.w, comp.h);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(comp.x, comp.y, comp.w, 6);
+    ctx.fillRect(comp.x, comp.y + comp.h - 6, comp.w, 6);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '8px monospace';
+    ctx.fillText(comp.label, comp.x + 2, comp.y - 4);
+  });
+}
+
+function drawOverlaysAndDefects(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  scanLineY: number
+): void {
+  // Digital Matrix Coordinate Overlay
+  ctx.strokeStyle = 'rgba(16, 185, 129, 0.28)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 42) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+  for (let y = 0; y < h; y += 42) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  // Defect Bounding Boxes
+  const defectBoxes = [
+    { x: w * 0.38, y: h * 0.35, w: 42, h: 42, tag: 'PIN-SHORT' },
+    { x: w * 0.60, y: h * 0.42, w: 32, h: 32, tag: 'BRIDGING' },
+    { x: w * 0.74, y: h * 0.64, w: 36, h: 42, tag: 'VOID' },
+  ];
+  defectBoxes.forEach((box) => {
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(box.x, box.y, box.w, box.h);
+
+    ctx.fillStyle = 'rgba(6, 78, 59, 0.85)';
+    ctx.fillRect(box.x, box.y - 12, 48, 11);
+    ctx.fillStyle = '#34d399';
+    ctx.font = 'bold 7.5px monospace';
+    ctx.fillText(box.tag, box.x + 3, box.y - 3);
+  });
+
+  // Scanning Laser Line
+  const laserGrad = ctx.createLinearGradient(0, scanLineY - 15, 0, scanLineY + 15);
+  laserGrad.addColorStop(0, 'rgba(16, 185, 129, 0)');
+  laserGrad.addColorStop(0.5, 'rgba(52, 211, 153, 0.85)');
+  laserGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+  ctx.fillStyle = laserGrad;
+  ctx.fillRect(0, scanLineY - 15, w, 30);
+}
 
 interface ExecutiveDashboardProps {
   onOpenPitch: () => void;
@@ -88,9 +316,6 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   const [simFps, setSimFps] = useState<number>(248);
   const [pneumaticPressure, setPneumaticPressure] = useState<number>(6.2);
   const [inspectionYield, setInspectionYield] = useState<number>(98.4);
-
-  // Three-dots menu dropdown state
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState<boolean>(false);
 
   // Synchronize 6-stage clicks with live camera filter mode
   const handleStageSelect = (stageId: number) => {
@@ -198,217 +423,16 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         // Draw live webcam feed
         ctx.drawImage(scannerVideoRef.current, 0, 0, w, h);
       } else {
-        // Render Synthetic High-Density Green PCB Motherboard
-        const bgGrad = ctx.createLinearGradient(0, 0, w, h);
-        bgGrad.addColorStop(0, '#0a2318');
-        bgGrad.addColorStop(0.5, '#071b12');
-        bgGrad.addColorStop(1, '#05140d');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, w, h);
-
-        // Copper Bus Traces
-        ctx.strokeStyle = '#1b4d36';
-        ctx.lineWidth = 2.5;
-        for (let y = 30; y < h; y += 40) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(w * 0.35, y);
-          ctx.lineTo(w * 0.45, y + 20);
-          ctx.lineTo(w, y + 20);
-          ctx.stroke();
-        }
-
-        // Central QFP Chip (AEGIS-SOC-5)
-        const icX = w * 0.36;
-        const icY = h * 0.28;
-        const icW = w * 0.32;
-        const icH = h * 0.44;
-
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1.5;
-        const numPins = 14;
-        for (let i = 0; i < numPins; i++) {
-          const py = icY + (icH / (numPins + 1)) * (i + 1);
-          ctx.beginPath();
-          ctx.moveTo(icX - 16, py);
-          ctx.lineTo(icX, py);
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.moveTo(icX + icW, py);
-          ctx.lineTo(icX + icW + 16, py);
-          ctx.stroke();
-        }
-
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(icX, icY, icW, icH);
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(icX, icY, icW, icH);
-
-        ctx.fillStyle = '#64748b';
-        ctx.font = 'bold 9px monospace';
-        ctx.fillText('AEGIS-SOC-5', icX + 18, icY + icH * 0.45);
-        ctx.fillText('ARM64 NEON', icX + 18, icY + icH * 0.6);
-
-        // SMD Components
-        const smdComponents = [
-          { x: w * 0.12, y: h * 0.22, w: 26, h: 48, label: 'C10' },
-          { x: w * 0.12, y: h * 0.52, w: 26, h: 48, label: 'C13' },
-          { x: w * 0.78, y: h * 0.2, w: 54, h: 90, label: 'U5' },
-          { x: w * 0.75, y: h * 0.65, w: 20, h: 36, label: 'R21' },
-          { x: w * 0.82, y: h * 0.65, w: 20, h: 36, label: 'R22' },
-        ];
-        smdComponents.forEach((comp) => {
-          ctx.fillStyle = '#78716c';
-          ctx.fillRect(comp.x, comp.y, comp.w, comp.h);
-          ctx.fillStyle = '#cbd5e1';
-          ctx.fillRect(comp.x, comp.y, comp.w, 6);
-          ctx.fillRect(comp.x, comp.y + comp.h - 6, comp.w, 6);
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '8px monospace';
-          ctx.fillText(comp.label, comp.x + 2, comp.y - 4);
-        });
+        drawSyntheticPcb(ctx, w, h);
       }
 
-      // Apply Real-Time Pixel Manipulation based on filterMode to whichever image was just drawn!
+      // Apply Real-Time Pixel Manipulation based on filterMode
       if (filterMode !== 'raw') {
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-        const len = data.length;
-
-        if (filterMode === 'gray') {
-          // High-precision luminance
-          for (let i = 0; i < len; i += 4) {
-            const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-            data[i] = lum;
-            data[i + 1] = lum;
-            data[i + 2] = lum;
-          }
-        } else if (filterMode === 'clahe') {
-          // Adaptive Contrast Equalization
-          const boost = contrastLimit / 35.0;
-          for (let i = 0; i < len; i += 4) {
-            data[i] = Math.min(255, Math.max(0, (data[i] - 128) * boost + 128));
-            data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * boost + 128));
-            data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * boost + 128));
-          }
-        } else if (filterMode === 'canny') {
-          // Real-time Edge Detection
-          const thresh = cannyThreshold1 * 1.4;
-          for (let y = 0; y < h - 1; y++) {
-            for (let x = 0; x < w - 1; x++) {
-              const idx = (y * w + x) * 4;
-              const rightIdx = (y * w + (x + 1)) * 4;
-              const downIdx = ((y + 1) * w + x) * 4;
-
-              const lCenter = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-              const lRight = 0.299 * data[rightIdx] + 0.587 * data[rightIdx + 1] + 0.114 * data[rightIdx + 2];
-              const lDown = 0.299 * data[downIdx] + 0.587 * data[downIdx + 1] + 0.114 * data[downIdx + 2];
-
-              const grad = Math.abs(lRight - lCenter) + Math.abs(lDown - lCenter);
-              if (grad > thresh) {
-                data[idx] = 0;
-                data[idx + 1] = 240;
-                data[idx + 2] = 255; // Neon Cyan Edge
-              } else {
-                data[idx] = 6;
-                data[idx + 1] = 10;
-                data[idx + 2] = 20; // Deep Space Dark
-              }
-            }
-          }
-        } else if (filterMode === 'thermal') {
-          // Multi-Spectral Thermal / Ironbow Heatmap ("termita")
-          for (let i = 0; i < len; i += 4) {
-            const l = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-            if (l < 45) {
-              data[i] = Math.round(l * 1.5);
-              data[i + 1] = 0;
-              data[i + 2] = Math.round(90 + l * 2.5);
-            } else if (l < 100) {
-              const norm = (l - 45) / 55;
-              data[i] = Math.round(68 + norm * 150);
-              data[i + 1] = 0;
-              data[i + 2] = Math.round(200 - norm * 80);
-            } else if (l < 165) {
-              const norm = (l - 100) / 65;
-              data[i] = Math.round(218 + norm * 37);
-              data[i + 1] = Math.round(norm * 140);
-              data[i + 2] = 0;
-            } else if (l < 225) {
-              const norm = (l - 165) / 60;
-              data[i] = 255;
-              data[i + 1] = Math.round(140 + norm * 115);
-              data[i + 2] = Math.round(norm * 40);
-            } else {
-              const norm = (l - 225) / 30;
-              data[i] = 255;
-              data[i + 1] = 255;
-              data[i + 2] = Math.round(40 + norm * 215);
-            }
-          }
-        } else if (filterMode === 'morph') {
-          // Morphology / Fissure isolation
-          for (let i = 0; i < len; i += 4) {
-            const l = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-            if (l > 170) {
-              data[i] = 16;
-              data[i + 1] = 240;
-              data[i + 2] = 160;
-            } else {
-              const dim = Math.round(l * 0.15);
-              data[i] = dim;
-              data[i + 1] = dim;
-              data[i + 2] = dim;
-            }
-          }
-        }
-        ctx.putImageData(imgData, 0, 0);
+        applyPixelFilter(ctx, w, h, filterMode, contrastLimit, cannyThreshold1);
       }
 
-      // Digital Matrix Coordinate Overlay
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.28)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 42) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = 0; y < h; y += 42) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-
-      // Defect Bounding Boxes
-      const defectBoxes = [
-        { x: w * 0.38, y: h * 0.35, w: 42, h: 42, tag: 'PIN-SHORT' },
-        { x: w * 0.60, y: h * 0.42, w: 32, h: 32, tag: 'BRIDGING' },
-        { x: w * 0.74, y: h * 0.64, w: 36, h: 42, tag: 'VOID' },
-      ];
-      defectBoxes.forEach((box) => {
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(box.x, box.y, box.w, box.h);
-
-        ctx.fillStyle = 'rgba(6, 78, 59, 0.85)';
-        ctx.fillRect(box.x, box.y - 12, 48, 11);
-        ctx.fillStyle = '#34d399';
-        ctx.font = 'bold 7.5px monospace';
-        ctx.fillText(box.tag, box.x + 3, box.y - 3);
-      });
-
-      // Scanning Laser Line
       scanLineY = (scanLineY + 2.5) % h;
-      const laserGrad = ctx.createLinearGradient(0, scanLineY - 15, 0, scanLineY + 15);
-      laserGrad.addColorStop(0, 'rgba(16, 185, 129, 0)');
-      laserGrad.addColorStop(0.5, 'rgba(52, 211, 153, 0.85)');
-      laserGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
-      ctx.fillStyle = laserGrad;
-      ctx.fillRect(0, scanLineY - 15, w, 30);
+      drawOverlaysAndDefects(ctx, w, h, scanLineY);
 
       ctx.restore();
       animFrame = requestAnimationFrame(render);
@@ -488,7 +512,8 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     let count = 0;
     const interval = setInterval(() => {
       count += 1;
-      setSimFps(Math.round(244 + Math.random() * 8));
+      const jitter = crypto.getRandomValues(new Uint32Array(1))[0] % 8;
+      setSimFps(244 + jitter);
       if (count > 25) {
         clearInterval(interval);
         setIsStressRunning(false);
@@ -510,29 +535,6 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     }, 800);
   };
 
-  // Download Telemetry JSON audit
-  const handleDownloadTelemetryJson = () => {
-    if (soundEnabled) playPassSound();
-    const data = {
-      timestamp: new Date().toISOString(),
-      machineId: 'AEGIS-5000-PRO',
-      graviton4Fps: simFps,
-      inspectionYieldPct: inspectionYield,
-      pneumaticPressureBar: pneumaticPressure,
-      gimbalAngles: { pan: panVal, tilt: tiltVal, orientation: gimbalOrientation },
-      filterMode,
-      activeStage,
-      s3VaultStatus: 'ACTIVE_SSE_KMS_256BIT',
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `aegis_telemetry_${Date.now()}.json`;
-    a.click();
-    setIsMoreMenuOpen(false);
-  };
-
   // 6 Pipeline Stages matching reference screenshot
   const pipelineStages = [
     { id: 1, label: '1. Stage 1 Graph', sub: 'Input Frame', icon: Activity, mode: 'raw' as const },
@@ -545,11 +547,11 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
   // Inspection Log Rows matching screenshot
   const logRows = [
-    { id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '25 µm', time: '2026-05-06', status: 'REJECT' },
-    { id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '1.2 µm', time: '2026-05-06', status: 'PASS' },
-    { id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '33 µm', time: '2026-05-06', status: 'REJECT' },
-    { id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '25 µm', time: '2026-05-06', status: 'QUARANTINE' },
-    { id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '20 µm', time: '2026-05-06', status: 'REJECT' },
+    { rowId: 'log-01', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '25 µm', time: '2026-05-06', status: 'REJECT' },
+    { rowId: 'log-02', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '1.2 µm', time: '2026-05-06', status: 'PASS' },
+    { rowId: 'log-03', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '33 µm', time: '2026-05-06', status: 'REJECT' },
+    { rowId: 'log-04', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '25 µm', time: '2026-05-06', status: 'QUARANTINE' },
+    { rowId: 'log-05', id: 'Inspection 5000', telemetry: 'High-density PCB/micro-defect scanning, vaneity PCB/micro-defect', spec: '10 mm', size: '20 µm', time: '2026-05-06', status: 'REJECT' },
   ];
 
   return (
@@ -695,14 +697,32 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               </div>
 
               <div className="flex items-center gap-1 text-slate-400">
-                <button onClick={onOpenDiagnostics} className="p-1 hover:text-cyan-400 cursor-pointer" title="Diagnostics">
-                  <Grid className="w-3.5 h-3.5" />
+                <button
+                  type="button"
+                  onClick={onOpenDiagnostics}
+                  className="p-1 hover:text-cyan-400 cursor-pointer"
+                  title="Run Diagnostics"
+                  aria-label="Run Diagnostics"
+                >
+                  <Activity className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={onShare} className="p-1 hover:text-cyan-400 cursor-pointer" title="Share Pipeline">
+                <button
+                  type="button"
+                  onClick={onShare}
+                  className="p-1 hover:text-cyan-400 cursor-pointer"
+                  title="Share Pipeline"
+                  aria-label="Share Pipeline"
+                >
                   <Share2 className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => setIsMoreMenuOpen(true)} className="p-1 hover:text-cyan-400 cursor-pointer">
-                  <MoreHorizontal className="w-3.5 h-3.5" />
+                <button
+                  type="button"
+                  onClick={onOpenSettings}
+                  className="p-1 hover:text-cyan-400 cursor-pointer"
+                  title="System Settings"
+                  aria-label="System Settings"
+                >
+                  <Settings className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -857,13 +877,15 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               <span className="hud-corner hud-corner-bl" />
               <span className="hud-corner hud-corner-br" />
 
-              <div
+              <button
+                type="button"
                 onClick={toggleFacecam}
                 className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 border border-emerald-400 text-[8px] font-mono text-emerald-400 flex items-center gap-1 cursor-pointer"
+                aria-label={`Toggle presenter facecam: currently ${facecamActive ? 'LIVE' : 'OFFLINE'}`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>{facecamActive ? 'LIVE' : 'OFFLINE'}</span>
-              </div>
+              </button>
             </div>
 
             {/* Bottom: Tabbed Telemetry & Benchmark Card */}
@@ -1016,9 +1038,9 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/50 text-slate-300">
-                  {logRows.map((row, idx) => (
+                  {logRows.map((row) => (
                     <tr
-                      key={idx}
+                      key={row.rowId}
                       className="hover:bg-slate-900/60 transition-colors"
                     >
                       <td className="py-1.5 px-3 text-cyan-400 font-semibold whitespace-nowrap">

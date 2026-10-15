@@ -3,10 +3,6 @@ import {
   X,
   Volume2,
   VolumeX,
-  Camera,
-  Cpu,
-  Shield,
-  Zap,
   Sliders,
   CheckCircle2,
   RotateCcw,
@@ -173,6 +169,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Target Inspection Throughput (FPS) */}
+          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+            <div className="flex justify-between text-slate-300 mb-1">
+              <span>Target Throughput Rate</span>
+              <span className="text-cyan-400 font-bold">{frameRateTarget} FPS (NEON)</span>
+            </div>
+            <input
+              type="range"
+              min="120"
+              max="300"
+              step="4"
+              value={frameRateTarget}
+              onChange={(e) => setFrameRateTarget(Number(e.target.value))}
+              className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+            />
+            <span className="text-[9px] text-slate-500 block mt-1">AWS Graviton4 Target (ARMv9 Neoverse-V2)</span>
+          </div>
+
           {/* KMS Encryption Key for S3 Vault */}
           <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
             <span className="text-white font-bold flex items-center gap-1.5">
@@ -217,3 +231,4 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     </div>
   );
 };
+

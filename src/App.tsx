@@ -170,7 +170,7 @@ export default function App() {
     a.download = `aegis-5000-telemetry-${Date.now()}.json`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
     showToast('📥 Telemetry JSON audit exported successfully');
   };
@@ -387,16 +387,18 @@ export default function App() {
             </div>
 
             {/* Operator Badge Avatar */}
-            <div
+            <button
+              type="button"
               onClick={() => {
                 if (soundEnabled) playScanClickSound();
                 setIsSettingsOpen(true);
               }}
               className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[11px] font-bold text-cyan-300 cursor-pointer hover:border-cyan-400 shadow-sm transition-colors"
               title="Operator: Marco Polo Caicedo (Click to configure)"
+              aria-label="Operator Settings: Marco Polo Caicedo"
             >
               MP
-            </div>
+            </button>
           </div>
         </header>
 

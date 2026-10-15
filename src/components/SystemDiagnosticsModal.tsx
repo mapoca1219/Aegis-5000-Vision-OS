@@ -2,14 +2,38 @@ import React, { useState, useEffect } from 'react';
 import {
   X,
   CheckCircle2,
-  Cpu,
-  Zap,
-  Shield,
-  HardDrive,
   Activity,
-  Terminal,
 } from 'lucide-react';
 import { playPassSound, playScanClickSound } from '../utils/soundEffects';
+
+interface DiagnosticTestItem {
+  id: string;
+  name: string;
+  status: 'pending' | 'running' | 'passed';
+  latency: string;
+}
+
+function renderTestStatusIcon(status: DiagnosticTestItem['status']): React.ReactNode {
+  if (status === 'passed') {
+    return <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />;
+  }
+  if (status === 'running') {
+    return <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin shrink-0" />;
+  }
+  return <div className="w-4 h-4 rounded-full border border-slate-700 shrink-0" />;
+}
+
+function getTestStatusColor(status: DiagnosticTestItem['status']): string {
+  if (status === 'passed') return 'text-emerald-400';
+  if (status === 'running') return 'text-cyan-400';
+  return 'text-slate-600';
+}
+
+function getTestStatusLabel(t: DiagnosticTestItem): string {
+  if (t.status === 'passed') return `PASS (${t.latency})`;
+  if (t.status === 'running') return 'TESTING...';
+  return 'PENDING';
+}
 
 interface SystemDiagnosticsModalProps {
   isOpen: boolean;
@@ -23,14 +47,12 @@ export const SystemDiagnosticsModal: React.FC<SystemDiagnosticsModalProps> = ({
   soundEnabled,
 }) => {
   const [testProgress, setTestProgress] = useState<number>(0);
-  const [tests, setTests] = useState<
-    { name: string; status: 'pending' | 'running' | 'passed'; latency: string }[]
-  >([
-    { name: 'OpenCV 5 G-API Asynchronous Pipeline', status: 'pending', latency: '0.42 ms' },
-    { name: 'AWS Graviton4 ARM64 NEON Vector Engine', status: 'pending', latency: '4.03 ms' },
-    { name: 'Pneumatic Solenoid PLC Actuation Bus (6.2 bar)', status: 'pending', latency: '11.4 ms' },
-    { name: 'Amazon S3 Defect Vault (SSE-KMS 256-bit)', status: 'pending', latency: '6.1 ms' },
-    { name: 'GigE / WebRTC 1080p Optical Frame Ingest', status: 'pending', latency: '1.8 ms' },
+  const [tests, setTests] = useState<DiagnosticTestItem[]>([
+    { id: 'diag-gapi', name: 'OpenCV 5 G-API Asynchronous Pipeline', status: 'pending', latency: '0.42 ms' },
+    { id: 'diag-neon', name: 'AWS Graviton4 ARM64 NEON Vector Engine', status: 'pending', latency: '4.03 ms' },
+    { id: 'diag-plc', name: 'Pneumatic Solenoid PLC Actuation Bus (6.2 bar)', status: 'pending', latency: '11.4 ms' },
+    { id: 'diag-s3', name: 'Amazon S3 Defect Vault (SSE-KMS 256-bit)', status: 'pending', latency: '6.1 ms' },
+    { id: 'diag-gige', name: 'GigE / WebRTC 1080p Optical Frame Ingest', status: 'pending', latency: '1.8 ms' },
   ]);
 
   useEffect(() => {
@@ -113,31 +135,17 @@ export const SystemDiagnosticsModal: React.FC<SystemDiagnosticsModalProps> = ({
 
         {/* Tests List */}
         <div className="space-y-2 py-1 text-xs">
-          {tests.map((t, idx) => (
+          {tests.map((t) => (
             <div
-              key={idx}
+              key={t.id}
               className="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800"
             >
               <div className="flex items-center gap-2">
-                {t.status === 'passed' ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                ) : t.status === 'running' ? (
-                  <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin shrink-0" />
-                ) : (
-                  <div className="w-4 h-4 rounded-full border border-slate-700 shrink-0" />
-                )}
+                {renderTestStatusIcon(t.status)}
                 <span className="text-slate-200 text-[11px] truncate">{t.name}</span>
               </div>
-              <span
-                className={`text-[10px] shrink-0 font-bold ${
-                  t.status === 'passed'
-                    ? 'text-emerald-400'
-                    : t.status === 'running'
-                    ? 'text-cyan-400'
-                    : 'text-slate-600'
-                }`}
-              >
-                {t.status === 'passed' ? `PASS (${t.latency})` : t.status === 'running' ? 'TESTING...' : 'PENDING'}
+              <span className={`text-[10px] shrink-0 font-bold ${getTestStatusColor(t.status)}`}>
+                {getTestStatusLabel(t)}
               </span>
             </div>
           ))}
@@ -168,3 +176,4 @@ export const SystemDiagnosticsModal: React.FC<SystemDiagnosticsModalProps> = ({
     </div>
   );
 };
+
