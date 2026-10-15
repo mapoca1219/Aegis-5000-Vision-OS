@@ -169,25 +169,49 @@ export const PipelineLabTab: React.FC = () => {
       }
       ctx.putImageData(imgData, 0, 0);
     } else if (activeStage === 'canny') {
-      // Canny Hysteresis Edge Detection
+      // Canny Hysteresis Edge Detection with Gaussian blur kernel & Sobel direction
+      const radius = Math.floor(blurKernel / 2);
+      const smoothed = new Float32Array(width * height);
+      if (radius > 0) {
+        for (let y = radius; y < height - radius; y++) {
+          for (let x = radius; x < width - radius; x++) {
+            let sum = 0;
+            let count = 0;
+            for (let ky = -radius; ky <= radius; ky++) {
+              for (let kx = -radius; kx <= radius; kx++) {
+                sum += gray[(y + ky) * width + (x + kx)];
+                count++;
+              }
+            }
+            smoothed[y * width + x] = sum / count;
+          }
+        }
+      } else {
+        smoothed.set(gray);
+      }
+
       const edges = new Uint8Array(width * height);
       for (let y = 1; y < height - 1; y++) {
         for (let x = 1; x < width - 1; x++) {
           const gx =
-            gray[(y - 1) * width + (x + 1)] -
-            gray[(y - 1) * width + (x - 1)] +
-            2 * (gray[y * width + (x + 1)] - gray[y * width + (x - 1)]) +
-            gray[(y + 1) * width + (x + 1)] -
-            gray[(y + 1) * width + (x - 1)];
+            smoothed[(y - 1) * width + (x + 1)] -
+            smoothed[(y - 1) * width + (x - 1)] +
+            2 * (smoothed[y * width + (x + 1)] - smoothed[y * width + (x - 1)]) +
+            smoothed[(y + 1) * width + (x + 1)] -
+            smoothed[(y + 1) * width + (x - 1)];
 
           const gy =
-            gray[(y + 1) * width + (x - 1)] -
-            gray[(y - 1) * width + (x - 1)] +
-            2 * (gray[(y + 1) * width + x] - gray[(y - 1) * width + x]) +
-            gray[(y + 1) * width + (x + 1)] -
-            gray[(y - 1) * width + (x + 1)];
+            smoothed[(y + 1) * width + (x - 1)] -
+            smoothed[(y - 1) * width + (x - 1)] +
+            2 * (smoothed[(y + 1) * width + x] - smoothed[(y - 1) * width + x]) +
+            smoothed[(y + 1) * width + (x + 1)] -
+            smoothed[(y - 1) * width + (x + 1)];
 
-          const mag = Math.sqrt(gx * gx + gy * gy);
+          let mag = 0;
+          if (sobelDirection === 'horizontal') mag = Math.abs(gx);
+          else if (sobelDirection === 'vertical') mag = Math.abs(gy);
+          else mag = Math.sqrt(gx * gx + gy * gy);
+
           if (mag >= cannyHigh) {
             edges[y * width + x] = 255;
           } else if (mag >= cannyLow) {
@@ -505,6 +529,9 @@ export const PipelineLabTab: React.FC = () => {
                     onClick={() => {
                       playScanClickSound();
                       setBlurKernel(k);
+                      if (activeStage === 'raw' || activeStage === 'gray') {
+                        setActiveStage('blur');
+                      }
                     }}
                     className={`py-1.5 rounded-lg border text-center transition-all cursor-pointer ${
                       blurKernel === k
@@ -553,6 +580,9 @@ export const PipelineLabTab: React.FC = () => {
                     onClick={() => {
                       playScanClickSound();
                       setSobelDirection(dir);
+                      if (activeStage === 'raw' || activeStage === 'gray') {
+                        setActiveStage('sobel');
+                      }
                     }}
                     className={`py-1.5 rounded-lg border text-center transition-all cursor-pointer ${
                       sobelDirection === dir

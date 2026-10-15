@@ -22,28 +22,37 @@ import {
   playGimbalMoveSound,
 } from '../utils/soundEffects';
 
-function applyGrayscale(data: Uint8ClampedArray): void {
+function applyGrayscale(data: Uint8ClampedArray, pixelIntensity: number = 100): void {
   const len = data.length;
+  const factor = Math.max(0.2, pixelIntensity / 100);
   for (let i = 0; i < len; i += 4) {
-    const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    const lum = Math.min(255, (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) * factor);
     data[i] = lum;
     data[i + 1] = lum;
     data[i + 2] = lum;
   }
 }
 
-function applyClahe(data: Uint8ClampedArray, contrastLimit: number): void {
+function applyClahe(data: Uint8ClampedArray, contrastLimit: number, pixelIntensity: number = 100): void {
   const len = data.length;
   const boost = contrastLimit / 35.0;
+  const shift = (pixelIntensity - 100) * 0.4;
   for (let i = 0; i < len; i += 4) {
-    data[i] = Math.min(255, Math.max(0, (data[i] - 128) * boost + 128));
-    data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * boost + 128));
-    data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * boost + 128));
+    data[i] = Math.min(255, Math.max(0, (data[i] - 128) * boost + 128 + shift));
+    data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * boost + 128 + shift));
+    data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * boost + 128 + shift));
   }
 }
 
-function applyCanny(data: Uint8ClampedArray, w: number, h: number, threshold: number): void {
-  const thresh = threshold * 1.4;
+function applyCanny(
+  data: Uint8ClampedArray,
+  w: number,
+  h: number,
+  threshold1: number,
+  threshold2: number
+): void {
+  const lowThresh = threshold1 * 0.9;
+  const highThresh = Math.max(lowThresh + 10, threshold2 * 1.1);
   for (let y = 0; y < h - 1; y++) {
     for (let x = 0; x < w - 1; x++) {
       const idx = (y * w + x) * 4;
@@ -55,10 +64,14 @@ function applyCanny(data: Uint8ClampedArray, w: number, h: number, threshold: nu
       const lDown = 0.299 * data[downIdx] + 0.587 * data[downIdx + 1] + 0.114 * data[downIdx + 2];
 
       const grad = Math.abs(lRight - lCenter) + Math.abs(lDown - lCenter);
-      if (grad > thresh) {
+      if (grad >= highThresh) {
         data[idx] = 0;
         data[idx + 1] = 240;
         data[idx + 2] = 255;
+      } else if (grad >= lowThresh) {
+        data[idx] = 0;
+        data[idx + 1] = 160;
+        data[idx + 2] = 180;
       } else {
         data[idx] = 6;
         data[idx + 1] = 10;
@@ -123,17 +136,19 @@ function applyPixelFilter(
   h: number,
   filterMode: string,
   contrastLimit: number,
-  cannyThreshold1: number
+  cannyThreshold1: number,
+  cannyThreshold2: number,
+  pixelIntensity: number
 ): void {
   const imgData = ctx.getImageData(0, 0, w, h);
   const data = imgData.data;
 
   if (filterMode === 'gray') {
-    applyGrayscale(data);
+    applyGrayscale(data, pixelIntensity);
   } else if (filterMode === 'clahe') {
-    applyClahe(data, contrastLimit);
+    applyClahe(data, contrastLimit, pixelIntensity);
   } else if (filterMode === 'canny') {
-    applyCanny(data, w, h, cannyThreshold1);
+    applyCanny(data, w, h, cannyThreshold1, cannyThreshold2);
   } else if (filterMode === 'thermal') {
     applyThermal(data);
   } else if (filterMode === 'morph') {
@@ -385,6 +400,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   useEffect(() => {
     if (scannerVideoRef.current && webcamStream) {
       scannerVideoRef.current.srcObject = webcamStream;
+      scannerVideoRef.current.play().catch(() => {});
     }
   }, [webcamStream]);
 
@@ -428,7 +444,16 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
       // Apply Real-Time Pixel Manipulation based on filterMode
       if (filterMode !== 'raw') {
-        applyPixelFilter(ctx, w, h, filterMode, contrastLimit, cannyThreshold1);
+        applyPixelFilter(
+          ctx,
+          w,
+          h,
+          filterMode,
+          contrastLimit,
+          cannyThreshold1,
+          cannyThreshold2,
+          pixelIntensity
+        );
       }
 
       scanLineY = (scanLineY + 2.5) % h;
@@ -440,7 +465,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
     render();
     return () => cancelAnimationFrame(animFrame);
-  }, [useWebcam, tiltVal, panVal, gimbalOrientation, filterMode, contrastLimit, cannyThreshold1]);
+  }, [useWebcam, tiltVal, panVal, gimbalOrientation, filterMode, contrastLimit, cannyThreshold1, cannyThreshold2, pixelIntensity]);
 
   // Draw 2D Digital Histogram matching screenshot (teal/cyan bar chart)
   useEffect(() => {
@@ -468,13 +493,16 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     const numBars = 70;
     const barW = (w - 20) / numBars;
 
+    // pixelIntensity shifts distribution center (normalized 0.15 .. 0.85)
+    const normCenter = Math.min(0.85, Math.max(0.15, pixelIntensity / 255));
+    // contrastLimit widens/sharpens distribution spread
+    const sigma = Math.max(0.06, 0.30 - (contrastLimit / 100) * 0.18);
+
     for (let i = 0; i < numBars; i++) {
       const normX = i / numBars;
-      const mean = 0.68;
-      const sigma = 0.16;
-      const gauss = Math.exp(-Math.pow(normX - mean, 2) / (2 * Math.pow(sigma, 2)));
-      const noise = Math.sin(i * 1.5) * 0.08 + Math.cos(i * 2.8) * 0.05;
-      const barHeight = Math.max(6, (gauss + noise) * (h * 0.82));
+      const gauss = Math.exp(-Math.pow(normX - normCenter, 2) / (2 * Math.pow(sigma, 2)));
+      const noise = Math.sin(i * 1.5 + normCenter * 4) * 0.04 + Math.cos(i * 2.8) * 0.02;
+      const barHeight = Math.max(4, Math.min(h - 6, (gauss + noise) * (h * 0.88)));
 
       const bx = 10 + i * barW;
       const by = h - barHeight - 4;
@@ -488,8 +516,9 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
       ctx.fillRect(bx, by, barW - 1.5, barHeight);
     }
 
-    const m1X = w * 0.38;
-    const m2X = w * 0.75;
+    // Dynamic threshold markers linked to Canny & Contrast limits
+    const m1X = Math.min(w - 20, Math.max(10, (cannyThreshold1 / 100) * (w * 0.5)));
+    const m2X = Math.min(w - 10, Math.max(m1X + 10, (cannyThreshold2 / 200) * w));
 
     ctx.strokeStyle = '#f59e0b';
     ctx.lineWidth = 1.5;
@@ -503,7 +532,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     ctx.moveTo(m2X, 6);
     ctx.lineTo(m2X, h - 4);
     ctx.stroke();
-  }, [contrastLimit, pixelIntensity]);
+  }, [contrastLimit, pixelIntensity, cannyThreshold1, cannyThreshold2]);
 
   // Run Stress Test in Benchmark tab
   const handleRunStress = () => {
@@ -577,12 +606,18 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
               {/* Status Pill & Webcam Toggle Button */}
               <button
+                type="button"
                 onClick={toggleScannerWebcam}
-                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-[10px] font-mono text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.2)] cursor-pointer hover:bg-emerald-900/60"
+                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[10px] font-mono shadow-sm cursor-pointer transition-all ${
+                  useWebcam
+                    ? 'bg-emerald-950/90 border-emerald-400 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.4)]'
+                    : 'bg-slate-900/90 border-slate-700 text-slate-300 hover:text-white hover:border-emerald-500/50'
+                }`}
                 title="Toggle Real USB Webcam vs High-Density PCB Simulator"
+                aria-label={`Optical scanner camera: ${useWebcam ? 'Live USB stream active' : 'Synthetic simulation active, click to connect USB camera'}`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{useWebcam ? 'LIVE CAMERA ACTIVE' : 'LIVE USB'}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${useWebcam ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                <span>{useWebcam ? '• LIVE USB ACTIVE' : 'USB CAM: OFFLINE (SIM)'}</span>
               </button>
             </div>
 
@@ -631,8 +666,8 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
               {/* Live USB Watermark on bottom right */}
               <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/70 border border-emerald-500/40 text-[9px] font-mono text-emerald-400 flex items-center gap-1.5 backdrop-blur-xs">
-                <span>{filterMode.toUpperCase()} STREAM</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>{filterMode.toUpperCase()} STREAM • {useWebcam ? 'LIVE HARDWARE' : 'SYNTHETIC PCB'}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${useWebcam ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'}`} />
               </div>
             </div>
 
