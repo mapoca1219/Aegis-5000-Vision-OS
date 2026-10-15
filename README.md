@@ -8,14 +8,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6.svg?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC.svg?logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](LICENSE)
-[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717.svg?logo=github)](https://github.com/mapoca1219/Aegis-5000-Vision-OS)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel_Active-brightgreen.svg)](https://aegis-5000-vision-os-kappa.vercel.app/)
 
 > **Official Submission for the OpenCV AI Competition 2026, Powered by AWS**  
 > **Creator:** Marco Polo Caicedo  
-> **GitHub Repository:** [https://github.com/mapoca1219/Aegis-5000-Vision-OS](https://github.com/mapoca1219/Aegis-5000-Vision-OS)  
-> **Live Production URL:** [https://aegis-5000-vision-os-kappa.vercel.app/](https://aegis-5000-vision-os-kappa.vercel.app/)  
-> **Target Award Tracks:** 🏆 Overall Awards (1st, 2nd, 3rd Place) • ⚡ Best Use of COOL Award ($1,000) • 🤖 Agentic Vision Award ($1,000)
+> **Live Production URL:** [https://aegis-5000-vision-os-kappa.vercel.app/](https://aegis-5000-vision-os-kappa.vercel.app/)
 
 ---
 
