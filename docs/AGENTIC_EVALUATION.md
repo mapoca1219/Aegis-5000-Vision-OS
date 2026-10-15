@@ -159,3 +159,4 @@ The 6.2-bar pneumatic reject cylinder is wired through a dual-channel hardware i
 ### 3. Millisecond Hardware Emergency Stop (E-STOP)
 - Both physical dry-contact mushroom pushbuttons on the plant floor and persistent software `E-STOP` buttons on the Web HMI immediately de-energize the conveyor drive relay and vent pneumatic line pressure within **8 milliseconds**.
 - Full state snapshot is captured and preserved for post-incident review.
+

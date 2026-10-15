@@ -140,3 +140,4 @@ if __name__ == "__main__":
     # Also dump structured JSON for CI/CD and Devpost audit
     print("JSON OUTPUT FOR DEVPOST AUDIT:")
     print(json.dumps(results, indent=2))
+

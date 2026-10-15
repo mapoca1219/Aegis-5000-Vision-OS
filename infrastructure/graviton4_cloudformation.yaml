@@ -255,3 +255,4 @@ Outputs:
   KmsKeyArn:
     Description: 256-bit AWS KMS Master Key ARN
     Value: !GetAtt AegisKmsMasterKey.Arn
+
