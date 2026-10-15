@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Navigation } from './components/Navigation';
+import { ExecutiveDashboard } from './components/ExecutiveDashboard';
 import { VisionLabTab } from './components/VisionLabTab';
 import { PipelineLabTab } from './components/PipelineLabTab';
 import { AgenticSimulatorTab } from './components/AgenticSimulatorTab';
@@ -12,13 +13,34 @@ import { Shield, Cpu, Zap, HardDrive, Award, Sparkles, ChevronRight } from 'luci
 import { playScanClickSound } from './utils/soundEffects';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('vision-lab');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isPitchOpen, setIsPitchOpen] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
   const handleSendToAgentic = (_defect: DetectedDefect, _sampleId: string) => {
     setActiveTab('agentic-loop');
   };
+
+  // 16:9 Executive Operating System Dashboard matching reference screenshot
+  if (activeTab === 'dashboard') {
+    return (
+      <div className="min-h-screen bg-[#080D1A] text-slate-100 flex flex-col font-sans select-none overflow-hidden">
+        <ExecutiveDashboard
+          onOpenPitch={() => setIsPitchOpen(true)}
+          onNavigateTab={(tab) => setActiveTab(tab)}
+          soundEnabled={soundEnabled}
+        />
+        <PitchShowcaseModal
+          isOpen={isPitchOpen}
+          onClose={() => setIsPitchOpen(false)}
+          onNavigateToTab={(tab) => {
+            setActiveTab(tab);
+            setIsPitchOpen(false);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-blueprint-grid text-slate-100 flex flex-col selection:bg-cyan-400 selection:text-black font-sans relative overflow-x-hidden">

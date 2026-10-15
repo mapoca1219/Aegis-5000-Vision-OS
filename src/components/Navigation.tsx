@@ -11,6 +11,7 @@ import {
   Volume2,
   VolumeX,
   Award,
+  Grid,
 } from 'lucide-react';
 import logoImg from '../assets/Logo.jpeg';
 import { playScanClickSound } from '../utils/soundEffects';
@@ -43,6 +44,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   }, []);
 
   const navItems = [
+    { id: 'dashboard', label: 'Executive OS Console', icon: Grid, badge: 'DASHBOARD' },
     { id: 'vision-lab', label: 'Optical Scanner Station', icon: Cpu, badge: 'LIVE GIGE' },
     { id: 'pipeline-lab', label: 'OpenCV 5 Vision Lab', icon: SlidersHorizontal, badge: 'G-API' },
     { id: 'agentic-loop', label: 'Agentic Closed-Loop', icon: Sparkles, badge: 'AUTOPILOT' },
