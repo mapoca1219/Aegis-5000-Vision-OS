@@ -116,8 +116,8 @@
   transform: translateY(-1px);
 }
 
-/* Tactical HUD Corner Brackets */
-.hud-corner {
+/* Tactical HUD Corner Brackets - only applies to decorative span elements */
+span.hud-corner {
   position: absolute;
   width: 10px;
   height: 10px;

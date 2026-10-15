@@ -187,7 +187,7 @@ export const CoolBenchmarkTab: React.FC = () => {
       {/* Real-time Hardware Gauges Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Speedup Meter */}
-        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-emerald-500/30 space-y-3">
+        <div className="metallic-panel p-4 flex flex-col justify-between border-emerald-500/30 space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="font-display font-bold uppercase tracking-wider text-slate-300">Vector Speedup</span>
             <span className="text-emerald-400 font-mono font-bold text-[11px] bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
@@ -207,7 +207,7 @@ export const CoolBenchmarkTab: React.FC = () => {
         </div>
 
         {/* Latency Meter */}
-        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-cyan-500/30 space-y-3">
+        <div className="metallic-panel p-4 flex flex-col justify-between border-cyan-500/30 space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="font-display font-bold uppercase tracking-wider text-slate-300">Loop Latency (P99)</span>
             <span className="text-cyan-400 font-mono font-bold text-[11px] bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">
@@ -229,7 +229,7 @@ export const CoolBenchmarkTab: React.FC = () => {
         </div>
 
         {/* Temperature Gauge */}
-        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-amber-500/30 space-y-3">
+        <div className="metallic-panel p-4 flex flex-col justify-between border-amber-500/30 space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="font-display font-bold uppercase tracking-wider text-slate-300">Die Temperature</span>
             <Flame className="w-4 h-4 text-amber-400" />
@@ -254,7 +254,7 @@ export const CoolBenchmarkTab: React.FC = () => {
         </div>
 
         {/* Total Processed Counter */}
-        <div className="metallic-panel p-4 hud-corner flex flex-col justify-between border-purple-500/30 space-y-3">
+        <div className="metallic-panel p-4 flex flex-col justify-between border-purple-500/30 space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="font-display font-bold uppercase tracking-wider text-slate-300">Frames Ingested</span>
             <Activity className="w-4 h-4 text-purple-400" />

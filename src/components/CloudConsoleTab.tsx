@@ -452,7 +452,7 @@ export const CloudConsoleTab: React.FC = () => {
         ].map((node, i) => {
           const Icon = node.icon;
           return (
-            <div key={i} className="metallic-panel p-4 hud-corner space-y-2 border-cyan-500/20 min-h-[105px] flex flex-col justify-between">
+            <div key={i} className="metallic-panel p-4 space-y-2 border-cyan-500/20 min-h-[105px] flex flex-col justify-between">
               <div className="flex items-center justify-between gap-1">
                 <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider truncate">{node.label}</span>
                 <Icon className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
@@ -471,7 +471,7 @@ export const CloudConsoleTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left: Video Streaming Configuration (5 Cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="metallic-panel p-5 hud-corner space-y-4 border-cyan-500/30">
+          <div className="metallic-panel p-5 space-y-4 border-cyan-500/30">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3 gap-2 flex-wrap">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-cyan-400" />
@@ -581,7 +581,7 @@ export const CloudConsoleTab: React.FC = () => {
 
         {/* Right: S3 Defect Vault Gallery WITH VISUAL THUMBNAILS (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="metallic-panel p-5 hud-corner space-y-4 border-cyan-500/30">
+          <div className="metallic-panel p-5 space-y-4 border-cyan-500/30">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3 gap-2 flex-wrap">
               <div className="flex items-center gap-2">
                 <Database className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -650,7 +650,7 @@ export const CloudConsoleTab: React.FC = () => {
       </div>
 
       {/* Live Event Log Terminal WITH DIRECT IMAGE LINKS */}
-      <div className="metallic-panel p-5 hud-corner space-y-3.5 border-cyan-500/30">
+      <div className="metallic-panel p-5 space-y-3.5 border-cyan-500/30">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-500/20 pb-3">
           <div className="flex items-center gap-2">
             <Terminal className="w-4 h-4 text-emerald-400 shrink-0" />
