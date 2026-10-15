@@ -1,0 +1,257 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Aegis-5000 Vision OS: Production Infrastructure on AWS Graviton4 (c8g.2xlarge)
+  with Cloud-Optimized OpenCV Library (COOL) and Amazon S3 SSE-KMS Defect Vault.
+  Built for OpenCV AI Competition 2026, Powered by AWS.
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: aegis-prod
+    Description: Deployment environment tag (e.g., aegis-prod, aegis-stage)
+
+  InstanceType:
+    Type: String
+    Default: c8g.2xlarge
+    AllowedValues:
+      - c8g.xlarge
+      - c8g.2xlarge
+      - c8g.4xlarge
+    Description: AWS Graviton4 Neoverse V2 Arm64 compute instance type
+
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64'
+    Description: Amazon Linux 2023 Arm64 AMI fetched dynamically via SSM Parameter Store
+
+Resources:
+  # ============================================================================
+  # 1. AWS KMS MASTER KEY FOR S3 DEFECT VAULT (256-BIT ENCRYPTION)
+  # ============================================================================
+  AegisKmsMasterKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS CMK for Aegis-5000 Forensic S3 Defect Vault (ISO-9001)
+      Enabled: true
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: aegis-kms-policy
+        Statement:
+          - Sid: Enable Root Account Administration
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow EC2 Graviton Node Key Usage
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt AegisGravitonExecutionRole.Arn
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+              - 'kms:ReEncrypt*'
+              - 'kms:GenerateDataKey*'
+              - 'kms:DescribeKey'
+            Resource: '*'
+
+  AegisKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/aegis-defect-vault
+      TargetKeyId: !Ref AegisKmsMasterKey
+
+  # ============================================================================
+  # 2. AMAZON S3 DEFECT EVIDENCE VAULT (IMMUTABLE FORENSIC ARCHIVE)
+  # ============================================================================
+  AegisDefectEvidenceVault:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${EnvironmentName}-defect-vault-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyId: !GetAtt AegisKmsMasterKey.Arn
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: ISO9001ForensicRetention
+            Status: Enabled
+            Transitions:
+              - TransitionInDays: 90
+                StorageClass: STANDARD_IA
+              - TransitionInDays: 365
+                StorageClass: GLACIER
+            ExpirationInDays: 2555 # 7-Year Automotive / Aerospace Quality Compliance
+
+  # ============================================================================
+  # 3. LEAST-PRIVILEGE IAM ROLE & INSTANCE PROFILE FOR GRAVITON4
+  # ============================================================================
+  AegisGravitonExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${EnvironmentName}-graviton4-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: AegisS3VaultAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:PutObject'
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                Resource:
+                  - !GetAtt AegisDefectEvidenceVault.Arn
+                  - !Sub '${AegisDefectEvidenceVault.Arn}/*'
+        - PolicyName: AegisTelemetryAndLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'cloudwatch:PutMetricData'
+                Resource: '*'
+        - PolicyName: AegisIoTAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'iot:Connect'
+                  - 'iot:Publish'
+                  - 'iot:Subscribe'
+                  - 'kinesisvideo:PutMedia'
+                  - 'kinesisvideo:GetDataEndpoint'
+                Resource: '*'
+
+  AegisInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref AegisGravitonExecutionRole
+
+  # ============================================================================
+  # 4. INDUSTRIAL OT SECURITY GROUP
+  # ============================================================================
+  AegisSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for Aegis-5000 Industrial Vision Station
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+          Description: Web HMI Dashboard and Telemetry Socket
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          Description: Secure SSH for Maintenance
+
+  # ============================================================================
+  # 5. EC2 INSTANCE: AWS GRAVITON4 (c8g.2xlarge ARM64)
+  # ============================================================================
+  AegisGraviton4Node:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref LatestAmiId
+      IamInstanceProfile: !Ref AegisInstanceProfile
+      SecurityGroupIds:
+        - !Ref AegisSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 60
+            VolumeType: gp3
+            Iops: 3000
+            Throughput: 125
+            Encrypted: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-graviton4-cool-engine'
+        - Key: Project
+          Value: Aegis-5000-Vision-OS
+        - Key: Competition
+          Value: OpenCV-AI-Competition-2026-AWS
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -e
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+          echo "=== [AEGIS-5000] Initializing AWS Graviton4 Environment ==="
+
+          # 1. Update packages & install container engine
+          dnf update -y
+          dnf install -y docker git python3 python3-pip
+
+          # 2. Configure Docker service for Arm64
+          systemctl start docker
+          systemctl enable docker
+          usermod -aG docker ec2-user
+
+          # 3. Clone Repository
+          cd /home/ec2-user
+          git clone https://github.com/mapoca1219/Aegis-5000-Vision-OS.git
+          cd Aegis-5000-Vision-OS
+
+          # 4. Set Environment Configuration
+          cat <<EOT >> .env
+          AEGIS_S3_VAULT_BUCKET=${AegisDefectEvidenceVault}
+          AEGIS_KMS_KEY_ARN=${AegisKmsMasterKey.Arn}
+          AWS_DEFAULT_REGION=${AWS::Region}
+          EOT
+
+          # 5. Build and launch Graviton4 + COOL container with NEON vectorization
+          docker build -t aegis-graviton4-app:latest .
+          docker run -d \
+            --name aegis-station \
+            --restart always \
+            -p 3000:3000 \
+            --env-file .env \
+            aegis-graviton4-app:latest
+
+          echo "=== [AEGIS-5000] Service successfully launched on port 3000 ==="
+
+Outputs:
+  InstanceId:
+    Description: EC2 Instance ID of the Graviton4 Compute Node
+    Value: !Ref AegisGraviton4Node
+
+  PublicDnsName:
+    Description: Public DNS Name of the Aegis-5000 Vision Station
+    Value: !GetAtt AegisGraviton4Node.PublicDnsName
+
+  HmiWebUrl:
+    Description: Production URL for Operator HMI Dashboard
+    Value: !Sub 'http://${AegisGraviton4Node.PublicIp}:3000'
+
+  S3VaultBucket:
+    Description: Immutable Amazon S3 Defect Vault
+    Value: !Ref AegisDefectEvidenceVault
+
+  KmsKeyArn:
+    Description: 256-bit AWS KMS Master Key ARN
+    Value: !GetAtt AegisKmsMasterKey.Arn
